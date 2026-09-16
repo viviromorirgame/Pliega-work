@@ -61,11 +61,11 @@
           <div id="resumen-tipos" class="flex flex-wrap gap-1 font-semibold"></div>
         </div>
         <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
-          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Puestos</span>
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Puestos y Especialidades</span>
           <div id="resumen-puestos" class="flex flex-wrap gap-1 font-semibold"></div>
         </div>
         <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
-          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Ámbito</span>
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Ámbito Territorial</span>
           <div id="resumen-ccaa" class="flex flex-wrap gap-1 font-semibold"></div>
         </div>
       </div>
@@ -74,12 +74,12 @@
     <!-- FORMULARIO DE FILTROS (DESPLEGABLE) -->
     <section id="panel-edicion" class="hidden bg-white p-5 rounded-2xl border border-pliega-border shadow-sm space-y-5">
       <div class="border-b border-stone-100 pb-3">
-        <h2 class="text-sm font-bold text-pliega-text">Configurar Filtros</h2>
+        <h2 class="text-sm font-bold text-pliega-text">Configuración de Vacantes y Empleo Público</h2>
       </div>
 
       <!-- Tipos -->
       <div class="space-y-2">
-        <label class="block text-xs font-bold">1. Tipo de proceso:</label>
+        <label class="block text-xs font-bold">1. Modalidad de Convocatoria:</label>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
           <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
             <input type="checkbox" id="chk-interinos" onchange="actualizarPreferencia('alerta_interinos', this.checked)">
@@ -96,27 +96,38 @@
         </div>
       </div>
 
-      <!-- Puestos -->
-      <div class="space-y-2 pt-2 border-t">
-        <label class="block text-xs font-bold">2. Sectores y Especialidades:</label>
+      <!-- Selector Multinivel de Puestos -->
+      <div class="space-y-3 pt-2 border-t">
+        <label class="block text-xs font-bold">2. Sectores y Especialidades fijadas:</label>
         <div id="chips-puestos" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
-        <select id="selector-puestos" onchange="agregarPuesto(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border">
-          <option value="">+ Añadir Sector...</option>
-          <option value="Educación Especial">Educación Especial / PT / AL</option>
-          <option value="Educación / Docencia">Educación / Docencia General</option>
-          <option value="Administración">Administración / Auxiliares</option>
-          <option value="Sanidad">Sanidad</option>
-          <option value="Trabajo Social">Trabajo Social</option>
-          <option value="Informática / Tecnología">Informática / Tecnología</option>
-          <option value="Servicios / Oficios">Servicios Generales / Oficios</option>
-        </select>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <span class="text-[10px] font-bold text-stone-500 block mb-1">Paso 1: Selecciona Área</span>
+            <select id="sel-area" onchange="actualizarSubcategorias()" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border">
+              <option value="">-- Elige Sector Principal --</option>
+              <option value="Educación">Educación y Docencia</option>
+              <option value="Seguridad">Seguridad, Emergencias y Ayuntamientos</option>
+              <option value="Sanidad">Sanidad y Salud</option>
+              <option value="Administración">Administración y Gestión</option>
+              <option value="Servicios">Servicios Generales y Oficios</option>
+              <option value="Social">Ámbito Social e Integración</option>
+            </select>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold text-stone-500 block mb-1">Paso 2: Añade Puesto Concreto</span>
+            <select id="sel-subpuesto" onchange="agregarSubpuesto(this.value)" disabled class="w-full text-xs p-2.5 bg-stone-100 rounded-xl border text-stone-400">
+              <option value="">Selecciona primero un sector</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <!-- Ámbito -->
+      <!-- Ámbito Territorial -->
       <div class="space-y-2 pt-2 border-t">
-        <label class="block text-xs font-bold">3. Territorio:</label>
+        <label class="block text-xs font-bold">3. Ámbito Territorial:</label>
         <label class="flex items-center justify-between p-2.5 rounded-xl bg-pliega-sand border cursor-pointer text-xs mb-2">
-          <span>Incluir convocatorias Estatales (AGE / Ministerios)</span>
+          <span>Incluir convocatorias Estatales (AGE, Ministerios y BOE)</span>
           <input type="checkbox" id="filtro-nacional" onchange="actualizarPreferencia('alerta_nacional', this.checked)">
         </label>
         <div id="chips-ccaa" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
@@ -142,12 +153,12 @@
         </select>
       </div>
 
-      <button onclick="alternarFiltros()" class="w-full bg-stone-900 text-white text-xs font-bold py-3 rounded-xl">
-        Aplicar y Cerrar
+      <button onclick="alternarFiltros()" class="w-full bg-stone-900 hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition">
+        Guardar Filtros y Actualizar Feed
       </button>
     </section>
 
-    <!-- LISTADO -->
+    <!-- LISTADO DE CONVOCATORIAS -->
     <section class="space-y-4">
       <div class="flex justify-between items-center">
         <div>
@@ -165,29 +176,69 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYXlncHJhcWx3a2JjaXBvZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjAxNzAsImV4cCI6MjEwNTEzNjE3MH0.y7jqQ0QcnoRXOyHpP6FccYTmEDYzXOZqSCpCKEP_lqs';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+    const ESTRUCTURA_SECTORES = {
+      "Educación": [
+        "Educación Especial (PT / AL / TIS)",
+        "Educación Infantil",
+        "Educación Primaria",
+        "Educación Secundaria / FP",
+        "Docencia Universitaria"
+      ],
+      "Seguridad": [
+        "Policía Local",
+        "Bomberos",
+        "Protección Civil",
+        "Agente Forestal / Medioambiente"
+      ],
+      "Sanidad": [
+        "Enfermería",
+        "Medicina / Facultativos",
+        "Auxiliar de Enfermería (TCAE)",
+        "Celadores",
+        "Fisioterapia / Terapia Ocupacional"
+      ],
+      "Administración": [
+        "Auxiliar Administrativo (C2)",
+        "Administrativo (C1)",
+        "Gestión y Técnicos (A2/A1)",
+        "Subalternos y Ordenanzas"
+      ],
+      "Servicios": [
+        "Personal de Limpieza",
+        "Jardinería",
+        "Mantenimiento y Peones",
+        "Cocina y Hostelería",
+        "Conductores"
+      ],
+      "Social": [
+        "Trabajo Social",
+        "Integración Social",
+        "Psicología"
+      ]
+    };
+
     let preferencias = {
       alerta_interinos: true,
       alerta_examenes: true,
       alerta_fijo: true,
-      puestos: [],
+      puestos: ["Educación Especial (PT / AL / TIS)"],
       comunidades: ["Comunitat Valenciana"],
       alerta_nacional: true
     };
 
-    const guardadas = localStorage.getItem("pliega_preferencias_v2");
+    const guardadas = localStorage.getItem("pliega_preferencias_v3");
     if (guardadas) {
       try { preferencias = Object.assign(preferencias, JSON.parse(guardadas)); } catch(e) {}
     }
 
     function guardar() {
-      localStorage.setItem("pliega_preferencias_v2", JSON.stringify(preferencias));
+      localStorage.setItem("pliega_preferencias_v3", JSON.stringify(preferencias));
       actualizarResumen();
       renderizarFeed();
     }
 
     function alternarFiltros() {
-      const p = document.getElementById("panel-edicion");
-      p.classList.toggle("hidden");
+      document.getElementById("panel-edicion").classList.toggle("hidden");
     }
 
     function actualizarPreferencia(campo, valor) {
@@ -195,10 +246,27 @@
       guardar();
     }
 
-    function agregarPuesto(val) {
+    function actualizarSubcategorias() {
+      const area = document.getElementById("sel-area").value;
+      const subSelect = document.getElementById("sel-subpuesto");
+
+      if (!area || !ESTRUCTURA_SECTORES[area]) {
+        subSelect.innerHTML = `<option value="">Selecciona primero un sector</option>`;
+        subSelect.disabled = true;
+        subSelect.className = "w-full text-xs p-2.5 bg-stone-100 rounded-xl border text-stone-400";
+        return;
+      }
+
+      subSelect.disabled = false;
+      subSelect.className = "w-full text-xs p-2.5 bg-pliega-sand rounded-xl border text-stone-900";
+      subSelect.innerHTML = `<option value="">+ Añadir puesto a tus alertas...</option>` + 
+        ESTRUCTURA_SECTORES[area].map(p => `<option value="${p}">${p}</option>`).join('');
+    }
+
+    function agregarSubpuesto(val) {
       if (val && !preferencias.puestos.includes(val)) {
         preferencias.puestos.push(val);
-        document.getElementById("selector-puestos").value = "";
+        document.getElementById("sel-subpuesto").value = "";
         renderizarChips();
         guardar();
       }
@@ -228,12 +296,12 @@
     function renderizarChips() {
       const cp = document.getElementById("chips-puestos");
       cp.innerHTML = preferencias.puestos.map(p => 
-        `<span class="bg-stone-800 text-white text-[11px] px-2 py-0.5 rounded flex items-center gap-1">${p} <button onclick="removerPuesto('${p}')" class="font-bold">&times;</button></span>`
+        `<span class="bg-stone-800 text-white text-[11px] px-2 py-0.5 rounded flex items-center gap-1">${p} <button onclick="removerPuesto('${p}')" class="font-bold hover:text-red-300">&times;</button></span>`
       ).join('');
 
       const cc = document.getElementById("chips-ccaa");
       cc.innerHTML = preferencias.comunidades.map(c => 
-        `<span class="bg-pliega-badge text-pliega-brown text-[11px] px-2 py-0.5 rounded flex items-center gap-1 border">${c} <button onclick="removerCCAA('${c}')" class="font-bold">&times;</button></span>`
+        `<span class="bg-pliega-badge text-pliega-brown text-[11px] px-2 py-0.5 rounded flex items-center gap-1 border border-stone-300">${c} <button onclick="removerCCAA('${c}')" class="font-bold hover:text-red-700">&times;</button></span>`
       ).join('');
     }
 
@@ -249,17 +317,17 @@
       if (preferencias.alerta_fijo) tipos.push("Ordinarias");
       document.getElementById("resumen-tipos").innerHTML = tipos.length ? tipos.join(', ') : 'Ninguno';
 
-      document.getElementById("resumen-puestos").innerHTML = preferencias.puestos.length ? preferencias.puestos.join(', ') : 'Todos los sectores';
+      document.getElementById("resumen-puestos").innerHTML = preferencias.puestos.length ? preferencias.puestos.join(', ') : 'Todos los puestos';
 
       const terr = [...preferencias.comunidades];
-      if (preferencias.alerta_nacional) terr.push("Nacional");
+      if (preferencias.alerta_nacional) terr.push("BOE / Estatal");
       document.getElementById("resumen-ccaa").innerHTML = terr.length ? terr.join(', ') : 'Sin especificar';
     }
 
     async function renderizarFeed() {
       const feed = document.getElementById("feed-convocatorias");
       const contador = document.getElementById("contador-activas");
-      feed.innerHTML = `<div class="p-6 text-center text-xs text-pliega-muted">Consultando convocatorias vigentes...</div>`;
+      feed.innerHTML = `<div class="p-6 text-center text-xs text-pliega-muted">Consultando convocatorias vigentes en sedes oficiales...</div>`;
 
       const { data, error } = await supabaseClient
         .from('convocatorias')
@@ -267,7 +335,7 @@
         .eq('activo', true);
 
       if (error || !data) {
-        feed.innerHTML = `<div class="p-6 text-center text-xs text-red-600">Error al cargar datos.</div>`;
+        feed.innerHTML = `<div class="p-6 text-center text-xs text-red-600">Error al sincronizar con la sede.</div>`;
         return;
       }
 
@@ -276,7 +344,17 @@
         if (c.tipo === 'examenes' && !preferencias.alerta_examenes) return false;
         if (c.tipo === 'fijo' && !preferencias.alerta_fijo) return false;
 
-        if (preferencias.puestos.length > 0 && !preferencias.puestos.includes(c.puesto)) return false;
+        if (preferencias.puestos.length > 0) {
+          const coincide = preferencias.puestos.some(p => {
+            if (p.includes("Educación Especial") && (c.puesto.includes("Educación Especial") || c.titulo.includes("ADC-") || c.titulo.includes("cobertura"))) return true;
+            if (p.includes("Policía") && (c.puesto.includes("Policía") || c.titulo.toLowerCase().includes("polic"))) return true;
+            if (p.includes("Bomberos") && (c.puesto.includes("Bomberos") || c.titulo.toLowerCase().includes("bomber"))) return true;
+            if (p.includes("Limpieza") && (c.puesto.includes("Limpieza") || c.titulo.toLowerCase().includes("limpieza"))) return true;
+            if (p.includes("Administrativo") && (c.puesto.includes("Administra") || c.titulo.toLowerCase().includes("auxiliar") || c.titulo.toLowerCase().includes("administrat"))) return true;
+            return c.puesto.toLowerCase().includes(p.toLowerCase());
+          });
+          if (!coincide) return false;
+        }
 
         if (c.ambito === 'estatal') {
           return preferencias.alerta_nacional;
@@ -290,7 +368,7 @@
       if (filtradas.length === 0) {
         feed.innerHTML = `
           <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl text-xs text-pliega-muted">
-            No hay convocatorias activas para esta combinación. Pulsa en <strong>Modificar filtros</strong> para abrir más opciones.
+            No hay convocatorias activas para esta combinación ahora mismo. Abre <strong>Modificar filtros</strong> para activar más especialidades o territorios.
           </div>
         `;
         return;
@@ -300,19 +378,32 @@
       filtradas.forEach(item => {
         const card = document.createElement("article");
         card.className = "p-5 bg-white border border-pliega-border rounded-2xl space-y-3 shadow-sm";
+        
+        let plazoBadge = '';
+        if (item.tipo === 'interinos') {
+          plazoBadge = `<span class="text-[11px] font-semibold text-amber-900 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+            ⏱ Ventana Continua / Llamamiento Urgente
+          </span>`;
+        } else if (item.fecha_fin) {
+          plazoBadge = `<span class="text-[11px] font-semibold text-stone-600 bg-stone-100 border border-stone-200 px-2.5 py-1 rounded-full">
+            📅 Fin: ${item.fecha_fin}
+          </span>`;
+        }
+
         card.innerHTML = `
           <div class="flex flex-wrap justify-between items-center gap-2">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${item.color_etiqueta}">${item.tipo_etiqueta}</span>
               <span class="text-xs text-pliega-muted">${item.organismo} • ${item.ccaa}</span>
             </div>
+            ${plazoBadge}
           </div>
           <h3 class="text-base font-bold text-pliega-text leading-snug">${item.titulo}</h3>
-          <p class="text-xs text-stone-600">${item.requisitos}</p>
-          <div class="pt-2 flex justify-between items-center border-t border-stone-100">
-            <span class="text-[11px] text-pliega-muted">Sector: <strong>${item.puesto}</strong></span>
-            <a href="${item.url_sede}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5">
-              <span>Ir a la Sede Oficial</span>
+          <p class="text-xs text-stone-600 leading-relaxed">${item.requisitos}</p>
+          <div class="pt-3 flex justify-between items-center border-t border-stone-100">
+            <span class="text-[11px] text-pliega-muted">Especialidad: <strong class="text-stone-800">${item.puesto}</strong></span>
+            <a href="${item.url_sede}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5 shadow-sm">
+              <span>Tramitar en Sede Oficial</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             </a>
           </div>
