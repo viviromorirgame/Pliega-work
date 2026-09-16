@@ -55,7 +55,7 @@
       </div>
 
       <p class="text-xs text-pliega-muted">
-        Introduce tus datos para recibir los enlaces de inscripción directos en WhatsApp en cuanto se abran los plazos oficiales.
+        Recibe avisos directos con enlace de inscripción en cuanto se publiquen bolsas de tus requisitos.
       </p>
 
       <form id="form-registro" onsubmit="guardarUsuarioInicial(event)" class="space-y-3 pt-1">
@@ -65,7 +65,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-pliega-text mb-1">Teléfono Móvil (WhatsApp para avisos)</label>
+          <label class="block text-xs font-semibold text-pliega-text mb-1">Teléfono Móvil (WhatsApp)</label>
           <input type="tel" id="reg-whatsapp" required placeholder="+34 600 000 000" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
         </div>
 
@@ -75,7 +75,7 @@
             <option value="Grado Universitario / Máster">Grado Universitario / Máster (Grupo A1/A2)</option>
             <option value="Bachillerato / FP Grado Superior">Bachillerato / FP Grado Superior (Grupo B/C1)</option>
             <option value="Graduado Escolar / ESO">Graduado Escolar / ESO (Grupo C2)</option>
-            <option value="Otras agrupaciones">Sin titulación requerida / Certificado escolar</option>
+            <option value="Otras agrupaciones">Sin titulación requerida / Agrupación profesional</option>
           </select>
         </div>
 
@@ -84,11 +84,11 @@
             <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
             Primeros 30 días gratuitos
           </div>
-          <p>Podrás cancelar o cambiar tus avisos en cualquier momento.</p>
+          <p>Sin permanencia. Podrás darte de baja respondiendo BAJA al WhatsApp.</p>
         </div>
 
         <button type="submit" id="btn-submit" class="w-full bg-pliega-brown hover:bg-pliega-hover text-white text-xs font-bold py-3 rounded-lg transition shadow-md">
-          Vincular y Guardar &rarr;
+          Activar y Vincular WhatsApp &rarr;
         </button>
       </form>
     </div>
@@ -111,15 +111,15 @@
     </div>
   </header>
 
-  <!-- CONTENEDOR PRINCIPAL VERTICAL Y CENTRADO -->
+  <!-- CONTENEDOR PRINCIPAL -->
   <main class="max-w-4xl mx-auto px-4 py-6 w-full space-y-6">
 
-    <!-- 1. RECUADRO RESUMEN DE BÚSQUEDA FIJADA (Se muestra cuando está guardado) -->
+    <!-- 1. RECUADRO RESUMEN CUANDO ESTÁ FIJADO -->
     <section id="panel-fijado" class="hidden bg-white p-5 rounded-2xl border-2 border-stone-800 shadow-md space-y-3">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b border-stone-100 pb-3">
         <div class="flex items-center gap-2">
           <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-stone-900">Tu Búsqueda y Alertas Fijadas</h2>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-stone-900">Búsqueda y Alertas Fijadas</h2>
         </div>
         <button onclick="editarFiltros()" class="text-xs font-bold text-pliega-brown hover:underline flex items-center gap-1">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -127,7 +127,6 @@
         </button>
       </div>
 
-      <!-- Resumen de etiquetas activas -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
         <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
           <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Tipos de Convocatoria</span>
@@ -146,27 +145,27 @@
       </div>
     </section>
 
-    <!-- 2. FORMULARIO COMPLETO DE FILTROS Y CONFIGURACIÓN -->
+    <!-- 2. FORMULARIO DE FILTROS -->
     <section id="panel-edicion" class="bg-white p-5 rounded-2xl border border-pliega-border shadow-sm space-y-5">
       <div class="border-b border-stone-100 pb-3">
         <h2 class="text-sm font-bold text-pliega-text">Configura tu Búsqueda y Alertas</h2>
-        <p class="text-xs text-pliega-muted mt-0.5">Marca los puestos, situaciones y lugares exactos que quieres seguir.</p>
+        <p class="text-xs text-pliega-muted mt-0.5">Elige los puestos, situaciones y lugares exactos que quieres seguir.</p>
       </div>
 
       <!-- Paso 1: Tipos -->
       <div class="space-y-2">
-        <label class="block text-xs font-bold text-pliega-text">1. ¿Qué tipos de procesos quieres ver?</label>
+        <label class="block text-xs font-bold text-pliega-text">1. ¿Qué tipos de procesos te interesan?</label>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
-            <input type="checkbox" id="chk-interinos" checked class="rounded w-4 h-4 accent-stone-800">
+            <input type="checkbox" id="chk-interinos" class="rounded w-4 h-4 accent-stone-800">
             <span><strong>Bolsas de Interinos</strong> (Bajas urgentes)</span>
           </label>
           <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
-            <input type="checkbox" id="chk-examenes" checked class="rounded w-4 h-4 accent-stone-800">
+            <input type="checkbox" id="chk-examenes" class="rounded w-4 h-4 accent-stone-800">
             <span><strong>Exámenes / Oposición</strong> (Plaza fija)</span>
           </label>
           <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
-            <input type="checkbox" id="chk-fijo" checked class="rounded w-4 h-4 accent-stone-800">
+            <input type="checkbox" id="chk-fijo" class="rounded w-4 h-4 accent-stone-800">
             <span><strong>Bolsas Ordinarias</strong> (Méritos)</span>
           </label>
         </div>
@@ -176,7 +175,7 @@
       <div class="space-y-2 pt-2 border-t border-stone-100">
         <div class="flex justify-between items-center">
           <label class="block text-xs font-bold text-pliega-text">2. Puestos o Especialidades:</label>
-          <span class="text-[11px] text-pliega-muted">(Si no marcas ninguno, verás todos)</span>
+          <span class="text-[11px] text-pliega-muted">(Si dejas vacío, verás todos)</span>
         </div>
         <div id="chips-puestos" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
         <select id="selector-puestos" onchange="agregarPuesto(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border border-pliega-border text-pliega-text focus:outline-none focus:border-pliega-brown">
@@ -196,7 +195,7 @@
         <label class="block text-xs font-bold text-pliega-text">3. Territorio y Ámbito:</label>
         <label class="flex items-center justify-between p-2.5 rounded-xl bg-pliega-sand border border-pliega-border cursor-pointer select-none mb-2">
           <span class="text-xs text-pliega-text font-semibold">Incluir Oportunidades Estatales (BOE / Ministerios)</span>
-          <input type="checkbox" id="filtro-nacional" checked class="rounded w-4 h-4 accent-stone-800">
+          <input type="checkbox" id="filtro-nacional" class="rounded w-4 h-4 accent-stone-800">
         </label>
         <div id="chips-ccaa" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
         <select id="selector-ccaa" onchange="agregarCCAA(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border border-pliega-border text-pliega-text focus:outline-none focus:border-pliega-brown">
@@ -223,14 +222,14 @@
 
       <!-- BOTÓN PRINCIPAL -->
       <div class="pt-3 border-t border-stone-100">
-        <button onclick="guardarYFijarPreferencias()" class="w-full bg-stone-900 hover:bg-black text-white text-sm font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+        <button type="button" onclick="guardarYFijarPreferencias()" class="w-full bg-stone-900 hover:bg-black text-white text-sm font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 active:scale-95">
           <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
           Guardar y Fijar mi Búsqueda
         </button>
       </div>
     </section>
 
-    <!-- 3. LISTADO DE CONVOCATORIAS CON ENLACE DIRECTO A LA INSCRIPCIÓN -->
+    <!-- 3. LISTADO DE CONVOCATORIAS -->
     <section class="space-y-4 pt-2">
       <div class="flex justify-between items-center">
         <div>
@@ -239,19 +238,18 @@
         </div>
       </div>
 
-      <!-- Contenedor de Tarjetas -->
       <div id="feed-convocatorias" class="space-y-3.5"></div>
     </section>
 
   </main>
 
   <script>
-    // INICIALIZACIÓN SUPABASE
+    // SUPABASE
     const supabaseUrl = 'https://zraygpraqlwkbcipoefa.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYXlncHJhcWx3a2JjaXBvZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjAxNzAsImV4cCI6MjEwNTEzNjE3MH0.y7jqQ0QcnoRXOyHpP6FccYTmEDYzXOZqSCpCKEP_lqs';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // BASE DE DATOS DE OPORTUNIDADES OFICIALES
+    // DATOS DE CONVOCATORIAS
     const convocatoriasBD = [
       {
         id: 1,
@@ -325,7 +323,7 @@
       }
     ];
 
-    // ESTADO POR DEFECTO
+    // ESTADO
     let preferencias = {
       fijado: false,
       alerta_interinos: true,
@@ -336,20 +334,26 @@
       alerta_nacional: true
     };
 
-    // RECUPERAR PREFERENCIAS PREVIAS
+    // RECUPERAR DATOS AL CARGAR
     const guardadas = localStorage.getItem("pliega_preferencias");
     if (guardadas) {
       try {
-        preferencias = JSON.parse(guardadas);
+        const parsed = JSON.parse(guardadas);
+        preferencias = Object.assign(preferencias, parsed);
       } catch(e) {}
     }
 
-    // APLICAR A LA INTERFAZ
     function sincronizarControles() {
-      document.getElementById("chk-interinos").checked = preferencias.alerta_interinos;
-      document.getElementById("chk-examenes").checked = preferencias.alerta_examenes;
-      document.getElementById("chk-fijo").checked = preferencias.alerta_fijo;
-      document.getElementById("filtro-nacional").checked = preferencias.alerta_nacional;
+      const cInterinos = document.getElementById("chk-interinos");
+      const cExamenes = document.getElementById("chk-examenes");
+      const cFijo = document.getElementById("chk-fijo");
+      const cNacional = document.getElementById("filtro-nacional");
+
+      if (cInterinos) cInterinos.checked = preferencias.alerta_interinos;
+      if (cExamenes) cExamenes.checked = preferencias.alerta_examenes;
+      if (cFijo) cFijo.checked = preferencias.alerta_fijo;
+      if (cNacional) cNacional.checked = preferencias.alerta_nacional;
+
       renderizarChipsCCAA();
       renderizarChipsPuestos();
       actualizarVistasFijado();
@@ -363,12 +367,14 @@
         panelFijado.classList.remove("hidden");
         panelEdicion.classList.add("hidden");
 
-        // Pintar resumen en el recuadro
         const tipos = [];
         if (preferencias.alerta_interinos) tipos.push("Bolsas Urgentes");
         if (preferencias.alerta_examenes) tipos.push("Exámenes/Oposición");
         if (preferencias.alerta_fijo) tipos.push("Bolsas Permanentes");
-        document.getElementById("resumen-tipos").innerHTML = tipos.map(t => `<span class="bg-white px-2 py-0.5 rounded border border-stone-300 text-[11px]">${t}</span>`).join('') || "Ninguno";
+        
+        document.getElementById("resumen-tipos").innerHTML = tipos.length
+          ? tipos.map(t => `<span class="bg-white px-2 py-0.5 rounded border border-stone-300 text-[11px]">${t}</span>`).join('')
+          : '<span class="text-stone-400 italic">Ninguno</span>';
 
         document.getElementById("resumen-puestos").innerHTML = preferencias.puestos.length 
           ? preferencias.puestos.map(p => `<span class="bg-stone-800 text-white px-2 py-0.5 rounded text-[11px]">${p}</span>`).join('')
@@ -378,7 +384,7 @@
         if (preferencias.alerta_nacional) territorio.push("BOE / Estatal");
         document.getElementById("resumen-ccaa").innerHTML = territorio.length
           ? territorio.map(c => `<span class="bg-pliega-badge text-pliega-brown px-2 py-0.5 rounded text-[11px] border border-stone-300">${c}</span>`).join('')
-          : '<span class="text-stone-500 italic">Sin zona marcada</span>';
+          : '<span class="text-stone-400 italic">Sin territorio</span>';
 
       } else {
         panelFijado.classList.add("hidden");
@@ -391,14 +397,15 @@
       actualizarVistasFijado();
     }
 
-    // GESTIÓN DE CHIPS COMUNIDADES
+    // CHIPS
     function renderizarChipsCCAA() {
       const cont = document.getElementById("chips-ccaa");
+      if (!cont) return;
       cont.innerHTML = "";
       preferencias.comunidades.forEach(ccaa => {
         const chip = document.createElement("span");
         chip.className = "text-[11px] font-medium bg-pliega-badge text-pliega-brown px-2 py-0.5 rounded flex items-center gap-1 border border-stone-300";
-        chip.innerHTML = `${ccaa} <button onclick="removerCCAA('${ccaa}')" class="font-bold hover:text-red-700">&times;</button>`;
+        chip.innerHTML = `${ccaa} <button type="button" onclick="removerCCAA('${ccaa}')" class="font-bold hover:text-red-700">&times;</button>`;
         cont.appendChild(chip);
       });
     }
@@ -418,14 +425,14 @@
       renderizarFeed();
     }
 
-    // GESTIÓN DE CHIPS PUESTOS
     function renderizarChipsPuestos() {
       const cont = document.getElementById("chips-puestos");
+      if (!cont) return;
       cont.innerHTML = "";
       preferencias.puestos.forEach(p => {
         const chip = document.createElement("span");
         chip.className = "text-[11px] font-medium bg-stone-800 text-white px-2 py-0.5 rounded flex items-center gap-1";
-        chip.innerHTML = `${p} <button onclick="removerPuesto('${p}')" class="font-bold text-stone-300 hover:text-red-400">&times;</button>`;
+        chip.innerHTML = `${p} <button type="button" onclick="removerPuesto('${p}')" class="font-bold text-stone-300 hover:text-red-400">&times;</button>`;
         cont.appendChild(chip);
       });
     }
@@ -445,23 +452,29 @@
       renderizarFeed();
     }
 
-    // ACCIÓN: GUARDAR Y FIJAR BÚSQUEDA
-    async function guardarYFijarPreferencias() {
+    // ACCIÓN INMEDIATA Y BLINDADA: GUARDAR Y FIJAR
+    function guardarYFijarPreferencias() {
+      // 1. Leer valores de las casillas
       preferencias.fijado = true;
       preferencias.alerta_interinos = document.getElementById("chk-interinos").checked;
       preferencias.alerta_examenes = document.getElementById("chk-examenes").checked;
       preferencias.alerta_fijo = document.getElementById("chk-fijo").checked;
       preferencias.alerta_nacional = document.getElementById("filtro-nacional").checked;
 
-      // 1. Guardar en memoria local persistente
+      // 2. Guardar en memoria de navegador
       localStorage.setItem("pliega_preferencias", JSON.stringify(preferencias));
 
-      // 2. Si el usuario ya metió su teléfono, actualizarlo también en Supabase
+      // 3. Cambiar la vista de inmediato
+      actualizarVistasFijado();
+      renderizarFeed();
+      lanzarToast("Búsqueda Fijada", "Se ha guardado tu recuadro de opciones activas.");
+
+      // 4. Intentar sincronizar en Supabase en segundo plano sin bloquear la pantalla
       const usuarioLocal = localStorage.getItem("pliega_user");
       if (usuarioLocal) {
-        const u = JSON.parse(usuarioLocal);
         try {
-          await supabaseClient
+          const u = JSON.parse(usuarioLocal);
+          supabaseClient
             .from('usuarios_pliega')
             .update({
               alerta_interinos: preferencias.alerta_interinos,
@@ -471,18 +484,15 @@
               puestos: preferencias.puestos,
               comunidades: preferencias.comunidades
             })
-            .eq('whatsapp', u.whatsapp);
-        } catch(err) {
-          console.error("Error sincronizando en Supabase:", err);
-        }
+            .eq('whatsapp', u.whatsapp)
+            .then(res => {
+              if (res.error) console.log("Nota Supabase:", res.error.message);
+            });
+        } catch(e) {}
       }
-
-      actualizarVistasFijado();
-      renderizarFeed();
-      lanzarToast("Búsqueda Fijada", "Se ha creado tu recuadro de seguimiento con tus bolsas activas.");
     }
 
-    // MODAL REGISTRO INICIAL
+    // MODAL REGISTRO
     function abrirModal() { document.getElementById("modal-registro").classList.remove("hidden"); }
     function cerrarModal() { document.getElementById("modal-registro").classList.add("hidden"); }
 
@@ -498,10 +508,6 @@
         titulacion: document.getElementById("reg-titulacion").value,
         alerta_nacional: preferencias.alerta_nacional,
         comunidades: preferencias.comunidades,
-        puestos: preferencias.puestos,
-        alerta_interinos: preferencias.alerta_interinos,
-        alerta_examenes: preferencias.alerta_examenes,
-        alerta_fijo: preferencias.alerta_fijo,
         suscripcion_estado: 'trial_activo'
       };
 
@@ -512,16 +518,16 @@
         localStorage.setItem("pliega_user", JSON.stringify(nuevoUsuario));
         document.getElementById("label-whatsapp").innerText = `✓ ${nuevoUsuario.whatsapp}`;
         cerrarModal();
-        lanzarToast("WhatsApp Vinculado", `Recibirás avisos directos en ${nuevoUsuario.whatsapp}`);
+        lanzarToast("WhatsApp Vinculado", `Avisos activados para ${nuevoUsuario.whatsapp}`);
       } catch (err) {
-        alert("Error al conectar con Supabase: " + err.message);
+        alert("Error al conectar: " + err.message);
       } finally {
-        btn.innerText = "Vincular y Guardar →";
+        btn.innerText = "Activar y Vincular WhatsApp →";
         btn.disabled = false;
       }
     }
 
-    // CÁLCULO DE DÍAS Y FECHAS
+    // CÁLCULO DE FECHAS
     function calcularDias(fechaStr) {
       const hoy = new Date();
       hoy.setHours(0,0,0,0);
@@ -533,9 +539,10 @@
       return new Date(fechaStr + "T00:00:00").toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    // RENDERIZAR FEED CON BOTÓN DIRECTO A LA INSCRIPCIÓN
+    // FEED CON ENLACES DIRECTOS A SEDES OFICIALES
     function renderizarFeed() {
       const feed = document.getElementById("feed-convocatorias");
+      if (!feed) return;
       feed.innerHTML = "";
 
       const chkInterinos = preferencias.alerta_interinos;
@@ -546,17 +553,14 @@
       const resultados = convocatoriasBD.filter(item => {
         if (calcularDias(item.fechaFin) <= 0) return false;
 
-        // Tipo
         if (item.tipo === "interinos" && !chkInterinos) return false;
         if (item.tipo === "examenes" && !chkExamenes) return false;
         if (item.tipo === "fijo" && !chkFijo) return false;
 
-        // Puesto (si hay seleccionados, solo muestra los seleccionados)
         if (preferencias.puestos.length > 0 && !preferencias.puestos.includes(item.puesto)) {
           return false;
         }
 
-        // Territorio
         if (item.ambito === "estatal") {
           return chkNacional;
         } else {
@@ -564,13 +568,14 @@
         }
       });
 
-      document.getElementById("contador-activas").innerText = `${resultados.length} convocatorias disponibles según tus opciones activas.`;
+      const contador = document.getElementById("contador-activas");
+      if (contador) contador.innerText = `${resultados.length} oportunidades coinciden con tu búsqueda.`;
 
       if (resultados.length === 0) {
         feed.innerHTML = `
           <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl">
-            <p class="text-sm font-bold text-pliega-text">No hay oportunidades abiertas con esta combinación.</p>
-            <p class="text-xs text-pliega-muted mt-1">Prueba a pulsar en "Modificar filtros" arriba para añadir más tipos de bolsas o comunidades.</p>
+            <p class="text-sm font-bold text-pliega-text">No hay oportunidades abiertas con esta combinación exacta.</p>
+            <p class="text-xs text-pliega-muted mt-1">Prueba a pulsar arriba en "Modificar filtros" para marcar más opciones.</p>
           </div>
         `;
         return;
@@ -598,13 +603,11 @@
             <p class="text-xs text-stone-600 mt-1.5 leading-relaxed"><strong class="text-stone-900">Requisitos clave:</strong> ${item.requisitos}</p>
           </div>
 
-          <!-- FILA INFERIOR CON EL ENLACE DIRECTO DE INSCRIPCIÓN -->
           <div class="pt-3 border-t border-stone-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div class="text-[11px] text-pliega-muted">
               Puesto: <strong class="text-stone-800">${item.puesto}</strong>
             </div>
 
-            <!-- ENLACE EXTERNO DIRECTO A LA SEDE ELECTRÓNICA -->
             <a href="${item.urlSede}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-5 py-2.5 rounded-xl transition shadow-sm">
               <span>Inscribirse en Sede Oficial</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -615,7 +618,7 @@
       });
     }
 
-    // TOAST
+    // TOAST NOTIFICACIÓN
     function lanzarToast(titulo, texto) {
       const toast = document.getElementById("toast-msg");
       document.getElementById("toast-title").innerText = titulo;
@@ -631,7 +634,7 @@
       toast.classList.remove("translate-y-0", "opacity-100");
     }
 
-    // INICIALIZACIÓN
+    // INICIO
     const u = localStorage.getItem("pliega_user");
     if (u) {
       try {
