@@ -1,33 +1,424 @@
-const ESTRUCTURA_SECTORES = {
-      "Docencia (Cuerpo de Maestros y Profesores)": [
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pliega Work — Asistente de Bolsas y Empleo Público</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pliega: {
+              sand: '#F7F5F0',
+              border: '#E2DBD0',
+              text: '#221F1B',
+              muted: '#6E6659',
+              brown: '#433829',
+              hover: '#2E261B',
+              badge: '#EDE7DC',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-pliega-sand text-pliega-text min-h-screen font-sans antialiased flex flex-col pb-16">
+
+  <!-- CABECERA -->
+  <header class="bg-white border-b border-pliega-border sticky top-0 z-30">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <div class="w-3.5 h-3.5 bg-pliega-brown rounded-sm rotate-45"></div>
+        <span class="font-bold text-lg tracking-tight text-pliega-text">Pliega<span class="text-pliega-muted font-normal text-xs ml-1">work</span></span>
+      </div>
+      <button class="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
+        ● Asistente Activo
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6 w-full space-y-6">
+
+    <!-- PANEL RESUMEN DE ALERTAS FIJADAS -->
+    <section id="panel-fijado" class="bg-white p-5 rounded-2xl border-2 border-stone-800 shadow-md space-y-3">
+      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-stone-900">Búsqueda y Alertas Activas</h2>
+        </div>
+        <button onclick="alternarFiltros()" class="text-xs font-bold text-pliega-brown hover:underline">
+          Modificar filtros
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+        <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Tipos de Convocatoria</span>
+          <div id="resumen-tipos" class="flex flex-wrap gap-1 font-semibold"></div>
+        </div>
+        <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Puestos y Especialidades</span>
+          <div id="resumen-puestos" class="flex flex-wrap gap-1 font-semibold"></div>
+        </div>
+        <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Ámbito Territorial</span>
+          <div id="resumen-ccaa" class="flex flex-wrap gap-1 font-semibold"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMULARIO DE FILTROS CONFIGURABLES -->
+    <section id="panel-edicion" class="hidden bg-white p-5 rounded-2xl border border-pliega-border shadow-sm space-y-5">
+      <div class="border-b border-stone-100 pb-3">
+        <h2 class="text-sm font-bold text-pliega-text">Configurar Preferencias y Búsquedas</h2>
+      </div>
+
+      <!-- 1. Tipos -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold">1. Modalidad de Convocatoria:</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
+            <input type="checkbox" id="chk-interinos" onchange="actualizarPreferencia('alerta_interinos', this.checked)">
+            <span>Bolsas Urgentes (Interinos)</span>
+          </label>
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
+            <input type="checkbox" id="chk-examenes" onchange="actualizarPreferencia('alerta_examenes', this.checked)">
+            <span>Exámenes / Oposición</span>
+          </label>
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
+            <input type="checkbox" id="chk-fijo" onchange="actualizarPreferencia('alerta_fijo', this.checked)">
+            <span>Bolsas Ordinarias</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 2. Selector Multinivel de Puestos -->
+      <div class="space-y-3 pt-2 border-t">
+        <label class="block text-xs font-bold">2. Puestos Seleccionados:</label>
+        <div id="chips-puestos" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <span class="text-[10px] font-bold text-stone-500 block mb-1">Paso 1: Selecciona Área Profesional</span>
+            <select id="sel-area" onchange="actualizarSubcategorias()" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border">
+              <option value="">-- Elige Área Principal --</option>
+              <option value="Docencia">Docencia (Cuerpo de Maestros y Profesores - A2/A1)</option>
+              <option value="Laboral">Apoyo Educativo y Ámbito Social (Laboral / C1)</option>
+              <option value="Seguridad">Seguridad, Emergencias y Ayuntamientos</option>
+              <option value="Sanidad">Sanidad y Salud Pública</option>
+              <option value="Administración">Administración y Gestión General</option>
+              <option value="Servicios">Servicios Generales y Oficios</option>
+            </select>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold text-stone-500 block mb-1">Paso 2: Añade la Especialidad</span>
+            <select id="sel-subpuesto" onchange="agregarSubpuesto(this.value)" disabled class="w-full text-xs p-2.5 bg-stone-100 rounded-xl border text-stone-400">
+              <option value="">Selecciona primero un área</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Ámbito Territorial -->
+      <div class="space-y-2 pt-2 border-t">
+        <label class="block text-xs font-bold">3. Ámbito Territorial:</label>
+        <label class="flex items-center justify-between p-2.5 rounded-xl bg-pliega-sand border cursor-pointer text-xs mb-2">
+          <span>Incluir convocatorias Estatales (AGE, Ministerios y BOE)</span>
+          <input type="checkbox" id="filtro-nacional" onchange="actualizarPreferencia('alerta_nacional', this.checked)">
+        </label>
+        <div id="chips-ccaa" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
+        <select id="selector-ccaa" onchange="agregarCCAA(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border">
+          <option value="">+ Añadir Comunidad Autónoma...</option>
+          <option value="Andalucía">Andalucía</option>
+          <option value="Aragón">Aragón</option>
+          <option value="Asturias">Asturias</option>
+          <option value="Cantabria">Cantabria</option>
+          <option value="Castilla y León">Castilla y León</option>
+          <option value="Castilla-La Mancha">Castilla-La Mancha</option>
+          <option value="Cataluña">Cataluña</option>
+          <option value="Comunidad de Madrid">Comunidad de Madrid</option>
+          <option value="Comunitat Valenciana">Comunitat Valenciana</option>
+          <option value="Extremadura">Extremadura</option>
+          <option value="Galicia">Galicia</option>
+          <option value="Islas Baleares">Islas Baleares</option>
+          <option value="Islas Canarias">Islas Canarias</option>
+          <option value="La Rioja">La Rioja</option>
+          <option value="Murcia">Murcia</option>
+          <option value="Navarra">Navarra</option>
+          <option value="País Vasco">País Vasco</option>
+        </select>
+      </div>
+
+      <button onclick="alternarFiltros()" class="w-full bg-stone-900 hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition">
+        Guardar Filtros y Actualizar Feed
+      </button>
+    </section>
+
+    <!-- LISTADO DE CONVOCATORIAS -->
+    <section class="space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-base font-bold text-pliega-text">Convocatorias Abiertas Oficiales</h2>
+          <p class="text-xs text-pliega-muted" id="contador-activas">Cargando convocatorias...</p>
+        </div>
+      </div>
+      <div id="feed-convocatorias" class="space-y-3.5"></div>
+    </section>
+
+  </main>
+
+  <script>
+    const supabaseUrl = 'https://zraygpraqlwkbcipoefa.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYXlncHJhcWx3a2JjaXBvZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjAxNzAsImV4cCI6MjEwNTEzNjE3MH0.y7jqQ0QcnoRXOyHpP6FccYTmEDYzXOZqSCpCKEP_lqs';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const ESTRUCTURA_SECTORES = {
+      "Docencia": [
         "Maestros: Pedagogía Terapéutica (PT)",
         "Maestros: Audición y Lenguaje (AL)",
         "Educación Infantil",
         "Educación Primaria",
         "Educación Secundaria y FP"
       ],
-      "Apoyo Educativo y Ámbito Social (Personal Laboral / C1)": [
+      "Laboral": [
         "Educador/a de Educación Especial (C1)",
         "Técnico Superior Integración Social (TIS/PTIS)",
         "Trabajo Social"
       ],
-      "Seguridad y Emergencias": [
+      "Seguridad": [
         "Policía Local",
         "Bomberos"
       ],
-      "Sanidad y Salud": [
+      "Sanidad": [
         "Enfermería",
         "Medicina / Facultativos",
         "Auxiliar de Enfermería (TCAE)",
         "Celadores"
       ],
-      "Administración General": [
+      "Administración": [
         "Auxiliar Administrativo (C2)",
         "Administrativo (C1)",
         "Gestión y Técnicos (A2/A1)"
       ],
-      "Servicios y Oficios": [
+      "Servicios": [
         "Personal de Limpieza",
         "Mantenimiento y Peones"
       ]
     };
+
+    let preferencias = {
+      alerta_interinos: true,
+      alerta_examenes: true,
+      alerta_fijo: true,
+      puestos: ["Educador/a de Educación Especial (C1)", "Maestros: Pedagogía Terapéutica (PT)"],
+      comunidades: ["Comunitat Valenciana", "Castilla-La Mancha"],
+      alerta_nacional: true
+    };
+
+    const guardadas = localStorage.getItem("pliega_preferencias_v4");
+    if (guardadas) {
+      try { preferencias = Object.assign(preferencias, JSON.parse(guardadas)); } catch(e) {}
+    }
+
+    function guardar() {
+      localStorage.setItem("pliega_preferencias_v4", JSON.stringify(preferencias));
+      actualizarResumen();
+      renderizarFeed();
+    }
+
+    function alternarFiltros() {
+      document.getElementById("panel-edicion").classList.toggle("hidden");
+    }
+
+    function actualizarPreferencia(campo, valor) {
+      preferencias[campo] = valor;
+      guardar();
+    }
+
+    function actualizarSubcategorias() {
+      const area = document.getElementById("sel-area").value;
+      const subSelect = document.getElementById("sel-subpuesto");
+
+      if (!area || !ESTRUCTURA_SECTORES[area]) {
+        subSelect.innerHTML = `<option value="">Selecciona primero un área</option>`;
+        subSelect.disabled = true;
+        subSelect.className = "w-full text-xs p-2.5 bg-stone-100 rounded-xl border text-stone-400";
+        return;
+      }
+
+      subSelect.disabled = false;
+      subSelect.className = "w-full text-xs p-2.5 bg-pliega-sand rounded-xl border text-stone-900";
+      subSelect.innerHTML = `<option value="">+ Añadir especialidad...</option>` + 
+        ESTRUCTURA_SECTORES[area].map(p => `<option value="${p}">${p}</option>`).join('');
+    }
+
+    function agregarSubpuesto(val) {
+      if (val && !preferencias.puestos.includes(val)) {
+        preferencias.puestos.push(val);
+        document.getElementById("sel-subpuesto").value = "";
+        renderizarChips();
+        guardar();
+      }
+    }
+
+    function removerPuesto(val) {
+      preferencias.puestos = preferencias.puestos.filter(p => p !== val);
+      renderizarChips();
+      guardar();
+    }
+
+    function agregarCCAA(val) {
+      if (val && !preferencias.comunidades.includes(val)) {
+        preferencias.comunidades.push(val);
+        document.getElementById("selector-ccaa").value = "";
+        renderizarChips();
+        guardar();
+      }
+    }
+
+    function removerCCAA(val) {
+      preferencias.comunidades = preferencias.comunidades.filter(c => c !== val);
+      renderizarChips();
+      guardar();
+    }
+
+    function renderizarChips() {
+      const cp = document.getElementById("chips-puestos");
+      cp.innerHTML = preferencias.puestos.map(p => 
+        `<span class="bg-stone-800 text-white text-[11px] px-2 py-0.5 rounded flex items-center gap-1">${p} <button onclick="removerPuesto('${p}')" class="font-bold hover:text-red-300">&times;</button></span>`
+      ).join('');
+
+      const cc = document.getElementById("chips-ccaa");
+      cc.innerHTML = preferencias.comunidades.map(c => 
+        `<span class="bg-pliega-badge text-pliega-brown text-[11px] px-2 py-0.5 rounded flex items-center gap-1 border border-stone-300">${c} <button onclick="removerCCAA('${c}')" class="font-bold hover:text-red-700">&times;</button></span>`
+      ).join('');
+    }
+
+    function actualizarResumen() {
+      document.getElementById("chk-interinos").checked = preferencias.alerta_interinos;
+      document.getElementById("chk-examenes").checked = preferencias.alerta_examenes;
+      document.getElementById("chk-fijo").checked = preferencias.alerta_fijo;
+      document.getElementById("filtro-nacional").checked = preferencias.alerta_nacional;
+
+      const tipos = [];
+      if (preferencias.alerta_interinos) tipos.push("Urgentes");
+      if (preferencias.alerta_examenes) tipos.push("Oposiciones");
+      if (preferencias.alerta_fijo) tipos.push("Ordinarias");
+      document.getElementById("resumen-tipos").innerHTML = tipos.length ? tipos.join(', ') : 'Ninguno';
+
+      document.getElementById("resumen-puestos").innerHTML = preferencias.puestos.length ? preferencias.puestos.join(', ') : 'Todos los puestos';
+
+      const terr = [...preferencias.comunidades];
+      if (preferencias.alerta_nacional) terr.push("BOE / Estatal");
+      document.getElementById("resumen-ccaa").innerHTML = terr.length ? terr.join(', ') : 'Sin especificar';
+    }
+
+    async function renderizarFeed() {
+      const feed = document.getElementById("feed-convocatorias");
+      const contador = document.getElementById("contador-activas");
+      feed.innerHTML = `<div class="p-6 text-center text-xs text-pliega-muted">Consultando convocatorias en bases de datos oficiales...</div>`;
+
+      const { data, error } = await supabaseClient
+        .from('convocatorias')
+        .select('*')
+        .eq('activo', true);
+
+      if (error || !data) {
+        feed.innerHTML = `<div class="p-6 text-center text-xs text-red-600">Error al sincronizar con la sede.</div>`;
+        return;
+      }
+
+      const filtradas = data.filter(c => {
+        if (c.tipo === 'interinos' && !preferencias.alerta_interinos) return false;
+        if (c.tipo === 'examenes' && !preferencias.alerta_examenes) return false;
+        if (c.tipo === 'fijo' && !preferencias.alerta_fijo) return false;
+
+        // Comprobación de Puesto/Especialidad
+        if (preferencias.puestos.length > 0) {
+          const coincidePuesto = preferencias.puestos.some(p => {
+            const normalP = p.toLowerCase().trim();
+            const normalC = (c.puesto || '').toLowerCase().trim();
+            const normalT = (c.titulo || '').toLowerCase().trim();
+
+            if (normalC === normalP) return true;
+            if (normalT.includes(normalP)) return true;
+
+            // Coincidencias específicas
+            if (p.includes("Educador/a") && (normalC.includes("educador") || normalT.includes("educador"))) return true;
+            if (p.includes("TIS/PTIS") && (normalC.includes("tis") || normalT.includes("tis") || normalT.includes("integración social"))) return true;
+            if (p.includes("Pedagogía Terapéutica") && (normalC.includes("pedagogía") || normalT.includes("pt") || normalT.includes("pedagogía"))) return true;
+            if (p.includes("Policía Local") && (normalC.includes("policía") || normalT.includes("polic"))) return true;
+            if (p.includes("Bomberos") && (normalC.includes("bomber") || normalT.includes("bomber"))) return true;
+
+            return false;
+          });
+          if (!coincidePuesto) return false;
+        }
+
+        // Comprobación Territorial
+        if (c.ambito === 'estatal') {
+          return preferencias.alerta_nacional;
+        } else {
+          return preferencias.comunidades.includes(c.ccaa);
+        }
+      });
+
+      contador.innerText = `${filtradas.length} convocatorias coinciden con tus filtros.`;
+
+      if (filtradas.length === 0) {
+        feed.innerHTML = `
+          <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl text-xs text-pliega-muted">
+            No hay convocatorias activas para esta combinación ahora mismo. Abre <strong>Modificar filtros</strong> para activar más especialidades o territorios.
+          </div>
+        `;
+        return;
+      }
+
+      feed.innerHTML = "";
+      filtradas.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "p-5 bg-white border border-pliega-border rounded-2xl space-y-3 shadow-sm";
+        
+        let plazoBadge = '';
+        if (item.tipo === 'interinos') {
+          plazoBadge = `<span class="text-[11px] font-semibold text-amber-900 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+            ⏱ Ventana Exprés / Llamamiento Urgente
+          </span>`;
+        } else if (item.fecha_fin) {
+          plazoBadge = `<span class="text-[11px] font-semibold text-stone-600 bg-stone-100 border border-stone-200 px-2.5 py-1 rounded-full">
+            📅 Fin: ${item.fecha_fin}
+          </span>`;
+        }
+
+        card.innerHTML = `
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${item.color_etiqueta}">${item.tipo_etiqueta}</span>
+              <span class="text-xs text-pliega-muted font-medium">${item.organismo} • <strong>${item.ccaa}</strong></span>
+            </div>
+            ${plazoBadge}
+          </div>
+          <h3 class="text-base font-bold text-pliega-text leading-snug">${item.titulo}</h3>
+          <p class="text-xs text-stone-600 leading-relaxed">${item.requisitos}</p>
+          <div class="pt-3 flex justify-between items-center border-t border-stone-100">
+            <span class="text-[11px] text-pliega-muted">Especialidad: <strong class="text-stone-800">${item.puesto}</strong></span>
+            <a href="${item.url_sede}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5 shadow-sm">
+              <span>Tramitar en Sede Oficial</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+    }
+
+    renderizarChips();
+    actualizarResumen();
+    renderizarFeed();
+  </script>
+</body>
+</html>
