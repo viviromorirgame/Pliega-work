@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pliega Work — Asistente de Bolsas y Empleo Público</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pliega: {
+              sand: '#F7F5F0',
+              card: '#FFFFFF',
+              border: '#E2DBD0',
+              text: '#221F1B',
+              muted: '#6E6659',
+              brown: '#433829',
+              hover: '#2E261B',
+              badge: '#EDE7DC',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Efecto suave para el toast de WhatsApp */
+    #notif-toast {
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    }
+  </style>
+</head>
+<body class="bg-pliega-sand text-pliega-text min-h-screen font-sans antialiased flex flex-col selection:bg-pliega-brown selection:text-white">
+
+  <!-- TOAST SIMULADOR DE ALERTA WHATSAPP -->
+  <div id="notif-toast" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 transform -translate-y-24 opacity-0 pointer-events-none bg-stone-900 text-stone-100 p-4 rounded-xl shadow-2xl border border-stone-700 flex items-start gap-3">
+    <div class="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.288.043.088.072.19.014.305-.058.115-.087.187-.173.289l-.26.309c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+    </div>
+    <div class="flex-1 text-xs">
+      <p class="font-bold text-emerald-400">Pliega Work Bot</p>
+      <p class="text-stone-300 mt-0.5" id="toast-text">Alerta enviada correctamente.</p>
+    </div>
+    <button onclick="cerrarToast()" class="text-stone-400 hover:text-white text-lg leading-none">&times;</button>
+  </div>
+
+  <!-- CABECERA -->
+  <header class="bg-white border-b border-pliega-border sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <div class="w-3.5 h-3.5 bg-pliega-brown rounded-sm rotate-45"></div>
+        <span class="font-bold text-lg tracking-tight text-pliega-text">Pliega<span class="text-pliega-muted font-normal text-xs ml-1">work</span></span>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Indicador WhatsApp -->
+        <button onclick="solicitarTelefono()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] sm:text-xs font-semibold hover:bg-emerald-100 transition">
+          <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+          <span id="label-whatsapp">Vincular WhatsApp</span>
+        </button>
+
+        <a href="#pro" class="hidden sm:inline-block text-xs font-medium text-pliega-muted hover:text-pliega-text transition">
+          Empresas (Pliega Pro) &rarr;
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- BARRA LATERAL (FILTROS Y ASISTENTE) -->
+    <aside class="space-y-5">
+      
+      <!-- Panel de Filtros -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl border border-pliega-border shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-pliega-text">Filtro Territorial</h2>
+          <button onclick="resetearFiltros()" class="text-[11px] text-pliega-muted hover:underline">Restablecer</button>
+        </div>
+
+        <!-- Toggle Nacional -->
+        <label class="flex items-center justify-between p-2.5 rounded-lg bg-pliega-sand border border-pliega-border cursor-pointer select-none">
+          <span class="text-xs font-semibold text-pliega-text">Incluir Estatal / BOE</span>
+          <input type="checkbox" id="filtro-nacional" checked onchange="renderizarFeed()" class="rounded text-pliega-brown focus:ring-0 w-4 h-4 accent-stone-800">
+        </label>
+
+        <!-- Selector de CC.AA. -->
+        <div>
+          <label class="block text-xs font-semibold text-pliega-muted mb-1.5">Comunidades Seleccionadas:</label>
+          <div id="chips-ccaa" class="flex flex-wrap gap-1.5 min-h-[30px] mb-2"></div>
+          
+          <select id="selector-ccaa" onchange="agregarCCAA(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-lg border border-pliega-border text-pliega-text focus:outline-none focus:border-pliega-brown">
+            <option value="">+ Añadir Comunidad Autónoma...</option>
+            <option value="Andalucía">Andalucía</option>
+            <option value="Aragón">Aragón</option>
+            <option value="Asturias">Asturias</option>
+            <option value="Cantabria">Cantabria</option>
+            <option value="Castilla y León">Castilla y León</option>
+            <option value="Castilla-La Mancha">Castilla-La Mancha</option>
+            <option value="Cataluña">Cataluña</option>
+            <option value="Comunidad de Madrid">Comunidad de Madrid</option>
+            <option value="Comunitat Valenciana">Comunitat Valenciana</option>
+            <option value="Extremadura">Extremadura</option>
+            <option value="Galicia">Galicia</option>
+            <option value="Islas Baleares">Islas Baleares</option>
+            <option value="Islas Canarias">Islas Canarias</option>
+            <option value="La Rioja">La Rioja</option>
+            <option value="Murcia">Murcia</option>
+            <option value="Navarra">Navarra</option>
+            <option value="País Vasco">País Vasco</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Asistente Rápido IA -->
+      <div class="bg-white p-4 sm:p-5 rounded-xl border border-pliega-border shadow-sm space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-pliega-brown rounded-full"></span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-pliega-brown">Copiloto IA Pliega</h3>
+        </div>
+        <p class="text-xs text-pliega-muted">Pega el fragmento de unas bases o escribe tu duda sobre titulaciones:</p>
+        <textarea id="ia-query" rows="2" placeholder="Ej: ¿El C1 de EOI sirve para esta bolsa de Valencia?" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown"></textarea>
+        <button onclick="consultarIA()" class="w-full bg-pliega-brown hover:bg-pliega-hover text-white text-xs font-semibold py-2 rounded-lg transition shadow-sm">
+          Analizar Requisito
+        </button>
+        <div id="ia-response" class="hidden p-2.5 rounded-lg bg-stone-100 border border-stone-200 text-xs text-pliega-text leading-relaxed"></div>
+      </div>
+
+    </aside>
+
+    <!-- COLUMNA PRINCIPAL (LISTADO DE CONVOCATORIAS) -->
+    <section class="lg:col-span-2 space-y-4">
+      
+      <!-- Barra superior de estado -->
+      <div class="flex flex-wrap justify-between items-center gap-2 pb-1">
+        <div>
+          <h1 class="text-lg font-bold text-pliega-text">Bolsas y Convocatorias Abiertas</h1>
+          <p class="text-xs text-pliega-muted" id="contador-activas">Calculando convocatorias...</p>
+        </div>
+        <button onclick="probarEnvioWhatsApp()" class="text-xs text-pliega-brown font-semibold hover:underline flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771z"/></svg>
+          Simular aviso al WhatsApp
+        </button>
+      </div>
+
+      <!-- Feed Dinámico -->
+      <div id="feed-convocatorias" class="space-y-3.5">
+        <!-- Renderizado dinámico vía JavaScript -->
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // BASE DE DATOS LOCAL CON VENCIMIENTOS
+    const convocatoriasBD = [
+      {
+        id: 1,
+        titulo: "Bolsa Extraordinaria de Auxiliares Administrativos (Subgrupo C2)",
+        organismo: "Ayuntamiento de Gandía",
+        ccaa: "Comunitat Valenciana",
+        ambito: "local",
+        categoria: "Administración",
+        fechaFin: "2026-09-22",
+        requisitos: "Graduado Escolar o ESO. Valenciano nivel B1/B2.",
+        urlSede: "https://gandia.sedelectronica.es"
+      },
+      {
+        id: 2,
+        titulo: "Cuerpo General Administrativo de la Administración del Estado (C1)",
+        organismo: "Ministerio de Hacienda y Función Pública",
+        ccaa: "Estatal",
+        ambito: "estatal",
+        categoria: "Administración",
+        fechaFin: "2026-10-06",
+        requisitos: "Título de Bachiller o Técnico. Examen único nacional.",
+        urlSede: "https://sede.administracion.gob.es"
+      },
+      {
+        id: 3,
+        titulo: "Bolsa de Empleo Temporal: Enfermeros/as de Atención Primaria",
+        organismo: "Servicio Madrileño de Salud (SERMAS)",
+        ccaa: "Comunidad Madrid",
+        ambito: "autonomico",
+        categoria: "Sanidad",
+        fechaFin: "2026-09-28",
+        requisitos: "Grado o Diplomatura en Enfermería. Colegiación obligatoria.",
+        urlSede: "https://www.comunidad.madrid/servicios/salud"
+      },
+      {
+        id: 4,
+        titulo: "Técnicos de Gestión de Sistemas e Informática (A2)",
+        organismo: "Junta de Andalucía",
+        ccaa: "Andalucía",
+        ambito: "autonomico",
+        categoria: "Tecnología",
+        fechaFin: "2026-10-15",
+        requisitos: "Grado en Informática, Telecomunicaciones o equivalentes.",
+        urlSede: "https://juntadeandalucia.es"
+      }
+    ];
+
+    // ESTADO
+    let ccaaSeleccionadas = ["Comunitat Valenciana", "Comunidad Madrid"];
+    let telefonoUsuario = localStorage.getItem("pliega_phone") || "";
+
+    if (telefonoUsuario) {
+      document.getElementById("label-whatsapp").innerText = telefonoUsuario;
+    }
+
+    // CÁLCULO DE DÍAS RESTANTES
+    function calcularDiasRestantes(fechaStr) {
+      const hoy = new Date();
+      hoy.setHours(0,0,0,0);
+      const fin = new Date(fechaStr + "T23:59:59");
+      const diffMs = fin - hoy;
+      return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    // FORMATEO DE FECHAS
+    function formatearFecha(fechaStr) {
+      const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+      return new Date(fechaStr + "T00:00:00").toLocaleDateString('es-ES', opciones);
+    }
+
+    // GESTIÓN DE CCAA SELECCIONADAS
+    function renderizarChips() {
+      const contenedor = document.getElementById("chips-ccaa");
+      contenedor.innerHTML = "";
+      
+      ccaaSeleccionadas.forEach(ccaa => {
+        const chip = document.createElement("span");
+        chip.className = "text-xs font-medium bg-pliega-badge text-pliega-brown px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-sm";
+        chip.innerHTML = `${ccaa} <button onclick="removerCCAA('${ccaa}')" class="font-bold hover:text-red-700 leading-none">&times;</button>`;
+        contenedor.appendChild(chip);
+      });
+    }
+
+    function agregarCCAA(valor) {
+      if (valor && !ccaaSeleccionadas.includes(valor)) {
+        ccaaSeleccionadas.push(valor);
+        renderizarChips();
+        renderizarFeed();
+      }
+      document.getElementById("selector-ccaa").value = "";
+    }
+
+    function removerCCAA(valor) {
+      ccaaSeleccionadas = ccaaSeleccionadas.filter(c => c !== valor);
+      renderizarChips();
+      renderizarFeed();
+    }
+
+    function resetearFiltros() {
+      ccaaSeleccionadas = ["Comunitat Valenciana", "Comunidad Madrid"];
+      document.getElementById("filtro-nacional").checked = true;
+      renderizarChips();
+      renderizarFeed();
+    }
+
+    // RENDERIZADO DEL FEED DE CONVOCATORIAS
+    function renderizarFeed() {
+      const feed = document.getElementById("feed-convocatorias");
+      const incluirNacional = document.getElementById("filtro-nacional").checked;
+      feed.innerHTML = "";
+
+      const convocatoriasFiltradas = convocatoriasBD.filter(item => {
+        const dias = calcularDiasRestantes(item.fechaFin);
+        if (dias <= 0) return false; // Caducada: no se muestra
+
+        if (item.ambito === "estatal") {
+          return incluirNacional;
+        } else {
+          return ccaaSeleccionadas.includes(item.ccaa);
+        }
+      });
+
+      document.getElementById("contador-activas").innerText = `${convocatoriasFiltradas.length} convocatorias en plazo según tus filtros.`;
+
+      if (convocatoriasFiltradas.length === 0) {
+        feed.innerHTML = `
+          <div class="p-8 text-center bg-white border border-pliega-border rounded-xl">
+            <p class="text-sm font-semibold text-pliega-text">No hay convocatorias que coincidan con estos filtros.</p>
+            <p class="text-xs text-pliega-muted mt-1">Añade más Comunidades Autónomas o activa las convocatorias nacionales.</p>
+          </div>
+        `;
+        return;
+      }
+
+      convocatoriasFiltradas.forEach(item => {
+        const diasRestantes = calcularDiasRestantes(item.fechaFin);
+        
+        const card = document.createElement("article");
+        card.className = "p-4 sm:p-5 bg-white border border-pliega-border rounded-xl hover:border-stone-400 transition shadow-sm space-y-3";
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-pliega-badge text-pliega-brown">${item.categoria}</span>
+              <span class="text-xs text-pliega-muted font-medium">${item.organismo} • ${item.ccaa}</span>
+            </div>
+            
+            <!-- Cuenta atrás en ROJO -->
+            <div class="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>Expira: ${formatearFecha(item.fechaFin)} (${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'})</span>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="text-base font-bold text-pliega-text leading-snug">${item.titulo}</h2>
+            <p class="text-xs text-pliega-muted mt-1"><strong class="text-stone-700">Requisitos clave:</strong> ${item.requisitos}</p>
+          </div>
+
+          <div class="pt-2 border-t border-stone-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <span class="text-[11px] text-pliega-muted">Identificador oficial verificado por IA</span>
+            <a href="${item.urlSede}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-4 py-2 rounded-lg transition shadow-sm">
+              Inscribirse en Sede Oficial &rarr;
+            </a>
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+    }
+
+    // ACCIONES DE USUARIO
+    function solicitarTelefono() {
+      const tel = prompt("Introduce tu número de WhatsApp para recibir alertas de nuevas bolsas:", telefonoUsuario || "+34 ");
+      if (tel && tel.trim().length > 6) {
+        telefonoUsuario = tel.trim();
+        localStorage.setItem("pliega_phone", telefonoUsuario);
+        document.getElementById("label-whatsapp").innerText = telefonoUsuario;
+        mostrarToast("WhatsApp configurado: Recibirás avisos de tus CC.AA.");
+      }
+    }
+
+    function probarEnvioWhatsApp() {
+      const primera = convocatoriasBD[0];
+      mostrarToast(`[Simulador WhatsApp] 📢 Nueva bolsa urgente: "${primera.titulo}" en ${primera.organismo}. Quedan ${calcularDiasRestantes(primera.fechaFin)} días.`);
+    }
+
+    function mostrarToast(mensaje) {
+      const toast = document.getElementById("notif-toast");
+      document.getElementById("toast-text").innerText = mensaje;
+      toast.classList.remove("-translate-y-24", "opacity-0", "pointer-events-none");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(cerrarToast, 5000);
+    }
+
+    function cerrarToast() {
+      const toast = document.getElementById("notif-toast");
+      toast.classList.add("-translate-y-24", "opacity-0", "pointer-events-none");
+      toast.classList.remove("translate-y-0", "opacity-100");
+    }
+
+    function consultarIA() {
+      const query = document.getElementById("ia-query").value;
+      const respBox = document.getElementById("ia-response");
+      
+      if (!query.trim()) return;
+
+      respBox.classList.remove("hidden");
+      respBox.innerHTML = "<span class='animate-pulse text-pliega-muted'>Consultando marco regulatorio y equivalencias...</span>";
+
+      setTimeout(() => {
+        respBox.innerHTML = `<strong>Criterio Pliega:</strong> Según el Decreto de homologación autonómico, el certificado C1 de Escuela Oficial de Idiomas (EOI) es plenamente equivalente al nivel C1 de la Junta Calificadora, computando la puntuación máxima de mérito en esta fase.`;
+      }, 900);
+    }
+
+    // INICIALIZACIÓN
+    renderizarChips();
+    renderizarFeed();
+  </script>
+</body>
+</html>
