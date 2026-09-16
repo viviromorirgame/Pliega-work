@@ -1,19 +1,20 @@
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://zraygpraqlwkbcipoefa.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_SERVICE_KEY) {
-  console.error("Falta la variable de entorno SUPABASE_SERVICE_ROLE_KEY");
+  console.error("Error: Falta el secreto SUPABASE_SERVICE_ROLE_KEY");
   process.exit(1);
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-// Clasificador inteligente de convocatorias y bolsas oficiales
-function clasificarConvocatoria(item) {
+// Clasificador inteligente de procesos selectivos y bolsas
+function clasificar(item) {
   const texto = `${item.titulo} ${item.requisitos || ''}`.toLowerCase();
-  
+
+  // Tipo de proceso
   let tipo = 'fijo';
   let tipo_etiqueta = 'Bolsa Ordinaria';
   let color_etiqueta = 'bg-stone-100 text-stone-800 border-stone-300';
@@ -30,6 +31,7 @@ function clasificarConvocatoria(item) {
     color_etiqueta = 'bg-blue-100 text-blue-900 border-blue-300';
   }
 
+  // Puesto y sector
   let puesto = 'Servicios / Oficios';
   if (texto.includes('educaci') || texto.includes('especial') || texto.includes('pedagog') || texto.includes('audici') || texto.includes('integraci')) {
     puesto = 'Educación Especial';
@@ -48,30 +50,30 @@ function clasificarConvocatoria(item) {
   return {
     titulo: item.titulo.substring(0, 200),
     organismo: item.organismo || 'Administración Pública',
-    ccaa: item.ccaa || 'Comunitat Valenciana',
+    ccaa: item.ccaa || 'Estatal',
     ambito: item.ambito || 'autonomico',
     puesto: puesto,
     tipo: tipo,
     tipo_etiqueta: tipo_etiqueta,
     color_etiqueta: color_etiqueta,
     fecha_fin: item.fecha_fin,
-    requisitos: item.requisitos || 'Consultar bases en la sede oficial.',
+    requisitos: item.requisitos || 'Consultar bases completas en la sede oficial.',
     url_sede: item.url_sede,
     activo: true
   };
 }
 
-async function ejecutarRastreo() {
-  console.log("Iniciando rastreador oficial de Pliega Work...");
+async function ejecutar() {
+  console.log("Iniciando rastreador oficial de empleo público...");
 
-  // Convocatorias oficiales reales y portales directos
+  // Convocatorias oficiales reales y portales de provisión continua
   const convocatoriasReales = [
     {
-      titulo: "Adjudicación de Puestos de Difícil Cobertura: Educadores/as de Educación Especial",
+      titulo: "Adjudicación Puestos de Difícil Cobertura: Educadores/as Educación Especial",
       organismo: "Conselleria d'Educació, Cultura i Esport",
       ccaa: "Comunitat Valenciana",
       ambito: "autonomico",
-      requisitos: "Técnico Superior en Integración Social (TIS) o equivalente. Petición telemática continua de plazas desiertas.",
+      requisitos: "Técnico Superior Integración Social (TIS) o equivalente. Petición telemática de plazas desiertas.",
       fecha_fin: "2026-09-25",
       url_sede: "https://ceice.gva.es/es/web/rrhh-educacion/adjudicaciones-continuas"
     },
@@ -80,7 +82,7 @@ async function ejecutarRastreo() {
       organismo: "Junta de Andalucía",
       ccaa: "Andalucía",
       ambito: "autonomico",
-      requisitos: "Titulación técnica en Integración Social o Educación. Inscripción telemática sin examen previo.",
+      requisitos: "Titulación técnica en Integración Social o Magisterio. Sin examen previo.",
       fecha_fin: "2026-10-08",
       url_sede: "https://www.juntadeandalucia.es/educacion/portals/web/cedfpfp/novedades"
     },
@@ -89,7 +91,7 @@ async function ejecutarRastreo() {
       organismo: "Consejería de Educación",
       ccaa: "Comunidad de Madrid",
       ambito: "autonomico",
-      requisitos: "Grado en Magisterio (Mención Educación Especial o AL). Fase de oposición con prueba eliminatoria.",
+      requisitos: "Grado en Magisterio (Mención Educación Especial o AL). Fase de oposición con examen eliminatorio.",
       fecha_fin: "2026-10-18",
       url_sede: "https://www.comunidad.madrid"
     },
@@ -98,7 +100,7 @@ async function ejecutarRastreo() {
       organismo: "Ayuntamiento de Gandía",
       ccaa: "Comunitat Valenciana",
       ambito: "local",
-      requisitos: "Graduado Escolar o ESO. Requiere prueba previa o baremación de méritos.",
+      requisitos: "Graduado Escolar o ESO. Baremación de méritos.",
       fecha_fin: "2026-09-30",
       url_sede: "https://gandia.sedelectronica.es"
     },
@@ -107,26 +109,31 @@ async function ejecutarRastreo() {
       organismo: "Ministerio para la Transformación Digital y Función Pública",
       ccaa: "Estatal",
       ambito: "estatal",
-      requisitos: "Título de Bachiller o Técnico FP. Solicitud telemática modelo 790 en IPS.",
+      requisitos: "Bachillerato o Técnico FP. Solicitud telemática modelo 790 en IPS.",
       fecha_fin: "2026-10-06",
       url_sede: "https://ips.redsara.es"
     }
   ];
 
+  let insertadas = 0;
   for (const item of convocatoriasReales) {
-    const registro = clasificarConvocatoria(item);
+    const reg = clasificar(item);
     const { error } = await supabase
       .from('convocatorias')
-      .upsert(registro, { onConflict: 'titulo' });
+      .upsert(reg, { onConflict: 'titulo' });
 
     if (error) {
-      console.warn("Aviso:", error.message);
+      console.warn("Aviso en registro:", error.message);
     } else {
-      console.log(`✓ Insertada/Actualizada: ${registro.titulo} [${registro.tipo_etiqueta}]`);
+      insertadas++;
+      console.log(`[OK] Insertada: ${reg.titulo}`);
     }
   }
 
-  console.log("Rastreo completado con éxito.");
+  console.log(`Rastreo finalizado: ${insertadas} convocatorias sincronizadas.`);
 }
 
-ejecutarRastreo();
+ejecutar().catch(err => {
+  console.error("Error fatal:", err);
+  process.exit(1);
+});
