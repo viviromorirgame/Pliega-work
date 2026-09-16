@@ -4,7 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Pliega Work — Asistente de Bolsas y Empleo Público</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client Oficial -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -25,25 +31,58 @@
       }
     }
   </script>
-  <style>
-    /* Efecto suave para el toast de WhatsApp */
-    #notif-toast {
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-    }
-  </style>
 </head>
 <body class="bg-pliega-sand text-pliega-text min-h-screen font-sans antialiased flex flex-col selection:bg-pliega-brown selection:text-white">
 
-  <!-- TOAST SIMULADOR DE ALERTA WHATSAPP -->
-  <div id="notif-toast" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 transform -translate-y-24 opacity-0 pointer-events-none bg-stone-900 text-stone-100 p-4 rounded-xl shadow-2xl border border-stone-700 flex items-start gap-3">
-    <div class="w-9 h-9 rounded-full bg-emerald-700 flex items-center justify-center shrink-0">
-      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.288.043.088.072.19.014.305-.058.115-.087.187-.173.289l-.26.309c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.861.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
+  <!-- MODAL DE REGISTRO / ACTIVACIÓN 30 DÍAS GRATIS -->
+  <div id="modal-registro" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-2xl border border-pliega-border max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-start">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Prueba Gratuita 30 Días</span>
+          <h3 class="text-lg font-bold text-pliega-text mt-1">Activa tu Asistente en WhatsApp</h3>
+        </div>
+        <button onclick="cerrarModal()" class="text-stone-400 hover:text-stone-700 text-2xl leading-none">&times;</button>
+      </div>
+
+      <p class="text-xs text-pliega-muted">
+        Recibe avisos solo de convocatorias donde cumples los requisitos de titulación y en tus zonas seleccionadas.
+      </p>
+
+      <form id="form-registro" onsubmit="guardarUsuario(event)" class="space-y-3 pt-1">
+        <div>
+          <label class="block text-xs font-semibold text-pliega-text mb-1">Nombre o Alias</label>
+          <input type="text" id="reg-nombre" required placeholder="Ej. Carlos" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-pliega-text mb-1">Teléfono Móvil (WhatsApp)</label>
+          <input type="tel" id="reg-whatsapp" required placeholder="+34 600 000 000" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-pliega-text mb-1">Titulación Máxima</label>
+          <select id="reg-titulacion" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
+            <option value="Grado Universitario / Máster">Grado Universitario / Máster (Grupo A1/A2)</option>
+            <option value="Bachillerato / FP Grado Superior">Bachillerato / FP Grado Superior (Grupo B/C1)</option>
+            <option value="Graduado Escolar / ESO">Graduado Escolar / ESO (Grupo C2)</option>
+            <option value="Sin titulación requerida">Otras agrupaciones profesionales</option>
+          </select>
+        </div>
+
+        <div class="p-3 bg-stone-50 border border-stone-200 rounded-lg text-[11px] text-pliega-muted space-y-1">
+          <div class="flex items-center gap-1.5 text-stone-800 font-semibold">
+            <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            0 € durante los primeros 30 días
+          </div>
+          <p>Sin compromiso. Puedes darte de baja respondiendo "BAJA" al WhatsApp en cualquier momento.</p>
+        </div>
+
+        <button type="submit" id="btn-submit" class="w-full bg-pliega-brown hover:bg-pliega-hover text-white text-xs font-bold py-3 rounded-lg transition shadow-md">
+          Empezar Mi Mes Gratuito &rarr;
+        </button>
+      </form>
     </div>
-    <div class="flex-1 text-xs">
-      <p class="font-bold text-emerald-400">Pliega Work Bot</p>
-      <p class="text-stone-300 mt-0.5" id="toast-text">Alerta enviada correctamente.</p>
-    </div>
-    <button onclick="cerrarToast()" class="text-stone-400 hover:text-white text-lg leading-none">&times;</button>
   </div>
 
   <!-- CABECERA -->
@@ -55,14 +94,13 @@
       </div>
 
       <div class="flex items-center gap-2 sm:gap-4">
-        <!-- Indicador WhatsApp -->
-        <button onclick="solicitarTelefono()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] sm:text-xs font-semibold hover:bg-emerald-100 transition">
+        <button onclick="abrirModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] sm:text-xs font-semibold hover:bg-emerald-100 transition shadow-sm">
           <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-          <span id="label-whatsapp">Vincular WhatsApp</span>
+          <span id="label-whatsapp">Activar Alertas WhatsApp</span>
         </button>
 
-        <a href="#pro" class="hidden sm:inline-block text-xs font-medium text-pliega-muted hover:text-pliega-text transition">
-          Empresas (Pliega Pro) &rarr;
+        <a href="#firm" class="hidden sm:inline-block text-xs font-medium text-pliega-muted hover:text-pliega-text transition">
+          Empresas (Pliega Firm) &rarr;
         </a>
       </div>
     </div>
@@ -121,8 +159,8 @@
           <span class="w-2 h-2 bg-pliega-brown rounded-full"></span>
           <h3 class="text-xs font-bold uppercase tracking-wider text-pliega-brown">Copiloto IA Pliega</h3>
         </div>
-        <p class="text-xs text-pliega-muted">Pega el fragmento de unas bases o escribe tu duda sobre titulaciones:</p>
-        <textarea id="ia-query" rows="2" placeholder="Ej: ¿El C1 de EOI sirve para esta bolsa de Valencia?" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown"></textarea>
+        <p class="text-xs text-pliega-muted">Pega un requisito de bases oficiales para comprobar equivalencias:</p>
+        <textarea id="ia-query" rows="2" placeholder="Ej: ¿Mi título de Técnico Superior convalidaría para esta convocatoria?" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown"></textarea>
         <button onclick="consultarIA()" class="w-full bg-pliega-brown hover:bg-pliega-hover text-white text-xs font-semibold py-2 rounded-lg transition shadow-sm">
           Analizar Requisito
         </button>
@@ -133,30 +171,25 @@
 
     <!-- COLUMNA PRINCIPAL (LISTADO DE CONVOCATORIAS) -->
     <section class="lg:col-span-2 space-y-4">
-      
-      <!-- Barra superior de estado -->
       <div class="flex flex-wrap justify-between items-center gap-2 pb-1">
         <div>
           <h1 class="text-lg font-bold text-pliega-text">Bolsas y Convocatorias Abiertas</h1>
           <p class="text-xs text-pliega-muted" id="contador-activas">Calculando convocatorias...</p>
         </div>
-        <button onclick="probarEnvioWhatsApp()" class="text-xs text-pliega-brown font-semibold hover:underline flex items-center gap-1">
-          <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771z"/></svg>
-          Simular aviso al WhatsApp
-        </button>
       </div>
 
-      <!-- Feed Dinámico -->
-      <div id="feed-convocatorias" class="space-y-3.5">
-        <!-- Renderizado dinámico vía JavaScript -->
-      </div>
-
+      <div id="feed-convocatorias" class="space-y-3.5"></div>
     </section>
 
   </main>
 
   <script>
-    // BASE DE DATOS LOCAL CON VENCIMIENTOS
+    // INICIALIZACIÓN DE SUPABASE
+    const supabaseUrl = 'https://zraygpraqlwkbcipoefa.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYXlncHJhcWx3a2JjaXBvZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjAxNzAsImV4cCI6MjEwNTEzNjE3MH0.y7jqQ0QcnoRXOyHpP6FccYTmEDYzXOZqSCpCKEP_lqs';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // BASE DE DATOS DE EJEMPLO
     const convocatoriasBD = [
       {
         id: 1,
@@ -165,7 +198,7 @@
         ccaa: "Comunitat Valenciana",
         ambito: "local",
         categoria: "Administración",
-        fechaFin: "2026-09-22",
+        fechaFin: "2026-09-24",
         requisitos: "Graduado Escolar o ESO. Valenciano nivel B1/B2.",
         urlSede: "https://gandia.sedelectronica.es"
       },
@@ -184,7 +217,7 @@
         id: 3,
         titulo: "Bolsa de Empleo Temporal: Enfermeros/as de Atención Primaria",
         organismo: "Servicio Madrileño de Salud (SERMAS)",
-        ccaa: "Comunidad Madrid",
+        ccaa: "Comunidad de Madrid",
         ambito: "autonomico",
         categoria: "Sanidad",
         fechaFin: "2026-09-28",
@@ -205,33 +238,74 @@
     ];
 
     // ESTADO
-    let ccaaSeleccionadas = ["Comunitat Valenciana", "Comunidad Madrid"];
-    let telefonoUsuario = localStorage.getItem("pliega_phone") || "";
+    let ccaaSeleccionadas = ["Comunitat Valenciana", "Comunidad de Madrid"];
+    let usuarioRegistrado = localStorage.getItem("pliega_user");
 
-    if (telefonoUsuario) {
-      document.getElementById("label-whatsapp").innerText = telefonoUsuario;
+    if (usuarioRegistrado) {
+      const u = JSON.parse(usuarioRegistrado);
+      document.getElementById("label-whatsapp").innerText = `✓ ${u.whatsapp}`;
     }
 
-    // CÁLCULO DE DÍAS RESTANTES
+    // MODAL
+    function abrirModal() {
+      document.getElementById("modal-registro").classList.remove("hidden");
+    }
+
+    function cerrarModal() {
+      document.getElementById("modal-registro").classList.add("hidden");
+    }
+
+    // GUARDAR EN SUPABASE REAL
+    async function guardarUsuario(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btn-submit");
+      btn.innerText = "Guardando...";
+      btn.disabled = true;
+
+      const nuevoUsuario = {
+        nombre: document.getElementById("reg-nombre").value.trim(),
+        whatsapp: document.getElementById("reg-whatsapp").value.trim(),
+        titulacion: document.getElementById("reg-titulacion").value,
+        alerta_nacional: document.getElementById("filtro-nacional").checked,
+        comunidades: ccaaSeleccionadas,
+        suscripcion_estado: 'trial_activo'
+      };
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('usuarios_pliega')
+          .insert([nuevoUsuario]);
+
+        if (error) throw error;
+
+        localStorage.setItem("pliega_user", JSON.stringify(nuevoUsuario));
+        document.getElementById("label-whatsapp").innerText = `✓ ${nuevoUsuario.whatsapp}`;
+        cerrarModal();
+        alert(`¡Registro completado! Tu prueba de 30 días está activa para ${nuevoUsuario.whatsapp}.`);
+      } catch (err) {
+        alert("Error al conectar con la base de datos: " + err.message);
+      } finally {
+        btn.innerText = "Empezar Mi Mes Gratuito →";
+        btn.disabled = false;
+      }
+    }
+
+    // FECHAS
     function calcularDiasRestantes(fechaStr) {
       const hoy = new Date();
       hoy.setHours(0,0,0,0);
       const fin = new Date(fechaStr + "T23:59:59");
-      const diffMs = fin - hoy;
-      return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      return Math.ceil((fin - hoy) / (1000 * 60 * 60 * 24));
     }
 
-    // FORMATEO DE FECHAS
     function formatearFecha(fechaStr) {
-      const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
-      return new Date(fechaStr + "T00:00:00").toLocaleDateString('es-ES', opciones);
+      return new Date(fechaStr + "T00:00:00").toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    // GESTIÓN DE CCAA SELECCIONADAS
+    // FILTROS
     function renderizarChips() {
       const contenedor = document.getElementById("chips-ccaa");
       contenedor.innerHTML = "";
-      
       ccaaSeleccionadas.forEach(ccaa => {
         const chip = document.createElement("span");
         chip.className = "text-xs font-medium bg-pliega-badge text-pliega-brown px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-sm";
@@ -256,13 +330,13 @@
     }
 
     function resetearFiltros() {
-      ccaaSeleccionadas = ["Comunitat Valenciana", "Comunidad Madrid"];
+      ccaaSeleccionadas = ["Comunitat Valenciana", "Comunidad de Madrid"];
       document.getElementById("filtro-nacional").checked = true;
       renderizarChips();
       renderizarFeed();
     }
 
-    // RENDERIZADO DEL FEED DE CONVOCATORIAS
+    // FEED
     function renderizarFeed() {
       const feed = document.getElementById("feed-convocatorias");
       const incluirNacional = document.getElementById("filtro-nacional").checked;
@@ -270,30 +344,14 @@
 
       const convocatoriasFiltradas = convocatoriasBD.filter(item => {
         const dias = calcularDiasRestantes(item.fechaFin);
-        if (dias <= 0) return false; // Caducada: no se muestra
-
-        if (item.ambito === "estatal") {
-          return incluirNacional;
-        } else {
-          return ccaaSeleccionadas.includes(item.ccaa);
-        }
+        if (dias <= 0) return false;
+        return item.ambito === "estatal" ? incluirNacional : ccaaSeleccionadas.includes(item.ccaa);
       });
 
       document.getElementById("contador-activas").innerText = `${convocatoriasFiltradas.length} convocatorias en plazo según tus filtros.`;
 
-      if (convocatoriasFiltradas.length === 0) {
-        feed.innerHTML = `
-          <div class="p-8 text-center bg-white border border-pliega-border rounded-xl">
-            <p class="text-sm font-semibold text-pliega-text">No hay convocatorias que coincidan con estos filtros.</p>
-            <p class="text-xs text-pliega-muted mt-1">Añade más Comunidades Autónomas o activa las convocatorias nacionales.</p>
-          </div>
-        `;
-        return;
-      }
-
       convocatoriasFiltradas.forEach(item => {
         const diasRestantes = calcularDiasRestantes(item.fechaFin);
-        
         const card = document.createElement("article");
         card.className = "p-4 sm:p-5 bg-white border border-pliega-border rounded-xl hover:border-stone-400 transition shadow-sm space-y-3";
         card.innerHTML = `
@@ -302,21 +360,17 @@
               <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-pliega-badge text-pliega-brown">${item.categoria}</span>
               <span class="text-xs text-pliega-muted font-medium">${item.organismo} • ${item.ccaa}</span>
             </div>
-            
-            <!-- Cuenta atrás en ROJO -->
             <div class="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span>Expira: ${formatearFecha(item.fechaFin)} (${diasRestantes} ${diasRestantes === 1 ? 'día' : 'días'})</span>
             </div>
           </div>
-
           <div>
             <h2 class="text-base font-bold text-pliega-text leading-snug">${item.titulo}</h2>
             <p class="text-xs text-pliega-muted mt-1"><strong class="text-stone-700">Requisitos clave:</strong> ${item.requisitos}</p>
           </div>
-
           <div class="pt-2 border-t border-stone-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <span class="text-[11px] text-pliega-muted">Identificador oficial verificado por IA</span>
+            <span class="text-[11px] text-pliega-muted">Identificador oficial verificado</span>
             <a href="${item.urlSede}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto text-center text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-4 py-2 rounded-lg transition shadow-sm">
               Inscribirse en Sede Oficial &rarr;
             </a>
@@ -326,52 +380,17 @@
       });
     }
 
-    // ACCIONES DE USUARIO
-    function solicitarTelefono() {
-      const tel = prompt("Introduce tu número de WhatsApp para recibir alertas de nuevas bolsas:", telefonoUsuario || "+34 ");
-      if (tel && tel.trim().length > 6) {
-        telefonoUsuario = tel.trim();
-        localStorage.setItem("pliega_phone", telefonoUsuario);
-        document.getElementById("label-whatsapp").innerText = telefonoUsuario;
-        mostrarToast("WhatsApp configurado: Recibirás avisos de tus CC.AA.");
-      }
-    }
-
-    function probarEnvioWhatsApp() {
-      const primera = convocatoriasBD[0];
-      mostrarToast(`[Simulador WhatsApp] 📢 Nueva bolsa urgente: "${primera.titulo}" en ${primera.organismo}. Quedan ${calcularDiasRestantes(primera.fechaFin)} días.`);
-    }
-
-    function mostrarToast(mensaje) {
-      const toast = document.getElementById("notif-toast");
-      document.getElementById("toast-text").innerText = mensaje;
-      toast.classList.remove("-translate-y-24", "opacity-0", "pointer-events-none");
-      toast.classList.add("translate-y-0", "opacity-100");
-
-      setTimeout(cerrarToast, 5000);
-    }
-
-    function cerrarToast() {
-      const toast = document.getElementById("notif-toast");
-      toast.classList.add("-translate-y-24", "opacity-0", "pointer-events-none");
-      toast.classList.remove("translate-y-0", "opacity-100");
-    }
-
     function consultarIA() {
       const query = document.getElementById("ia-query").value;
       const respBox = document.getElementById("ia-response");
-      
       if (!query.trim()) return;
-
       respBox.classList.remove("hidden");
-      respBox.innerHTML = "<span class='animate-pulse text-pliega-muted'>Consultando marco regulatorio y equivalencias...</span>";
-
+      respBox.innerHTML = "<span class='animate-pulse text-pliega-muted'>Consultando marco regulatorio...</span>";
       setTimeout(() => {
-        respBox.innerHTML = `<strong>Criterio Pliega:</strong> Según el Decreto de homologación autonómico, el certificado C1 de Escuela Oficial de Idiomas (EOI) es plenamente equivalente al nivel C1 de la Junta Calificadora, computando la puntuación máxima de mérito en esta fase.`;
-      }, 900);
+        respBox.innerHTML = `<strong>Criterio Pliega:</strong> El título reúne la equivalencia académica conforme a la Orden de homologación vigente para este subgrupo.`;
+      }, 700);
     }
 
-    // INICIALIZACIÓN
     renderizarChips();
     renderizarFeed();
   </script>
