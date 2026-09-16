@@ -2,11 +2,10 @@ name: Rastreador de Empleo Publico Pliega
 
 on:
   schedule:
-    # 07:00 UTC = 09:00 AM en España
+    # 07:00 UTC = 09:00 AM hora peninsular España
     - cron: '0 7 * * *'
-    # 14:00 UTC = 16:00 PM (4 PM) en España
+    # 14:00 UTC = 16:00 PM (4 PM) hora peninsular España
     - cron: '0 14 * * *'
-  # Boton para lanzarlo manualmente cuando quieras
   workflow_dispatch:
 
 jobs:
@@ -17,7 +16,7 @@ jobs:
       - name: Descargar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
