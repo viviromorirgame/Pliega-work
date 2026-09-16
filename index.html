@@ -43,7 +43,7 @@
     <button onclick="cerrarToast()" class="text-stone-400 hover:text-white text-lg leading-none">&times;</button>
   </div>
 
-  <!-- MODAL DE ALTA INICIAL -->
+  <!-- MODAL DE VINCULACIÓN WHATSAPP -->
   <div id="modal-registro" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
     <div class="bg-white rounded-2xl border border-pliega-border max-w-md w-full p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-start">
@@ -55,7 +55,7 @@
       </div>
 
       <p class="text-xs text-pliega-muted">
-        Recibe avisos directos con enlace de inscripción en cuanto se publiquen bolsas de tus requisitos.
+        Recibe avisos inmediatos con enlace directo de inscripción en cuanto se publiquen vacantes acordes a tu titulación y filtros.
       </p>
 
       <form id="form-registro" onsubmit="guardarUsuarioInicial(event)" class="space-y-3 pt-1">
@@ -84,7 +84,7 @@
             <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
             Primeros 30 días gratuitos
           </div>
-          <p>Sin permanencia. Podrás darte de baja respondiendo BAJA al WhatsApp.</p>
+          <p>Sin permanencia. Podrás darte de baja en cualquier momento respondiendo BAJA por WhatsApp.</p>
         </div>
 
         <button type="submit" id="btn-submit" class="w-full bg-pliega-brown hover:bg-pliega-hover text-white text-xs font-bold py-3 rounded-lg transition shadow-md">
@@ -114,7 +114,7 @@
   <!-- CONTENEDOR PRINCIPAL -->
   <main class="max-w-4xl mx-auto px-4 py-6 w-full space-y-6">
 
-    <!-- 1. RECUADRO RESUMEN CUANDO ESTÁ FIJADO -->
+    <!-- 1. RESUMEN CUANDO ESTÁ FIJADO -->
     <section id="panel-fijado" class="hidden bg-white p-5 rounded-2xl border-2 border-stone-800 shadow-md space-y-3">
       <div class="flex flex-wrap justify-between items-center gap-2 border-b border-stone-100 pb-3">
         <div class="flex items-center gap-2">
@@ -158,7 +158,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
             <input type="checkbox" id="chk-interinos" class="rounded w-4 h-4 accent-stone-800">
-            <span><strong>Bolsas de Interinos</strong> (Bajas urgentes)</span>
+            <span><strong>Bolsas de Interinos</strong> (Bajas/Urgente)</span>
           </label>
           <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
             <input type="checkbox" id="chk-examenes" class="rounded w-4 h-4 accent-stone-800">
@@ -234,7 +234,7 @@
       <div class="flex justify-between items-center">
         <div>
           <h2 class="text-base font-bold text-pliega-text">Convocatorias y Bolsas en Plazo Oficial</h2>
-          <p class="text-xs text-pliega-muted" id="contador-activas">Calculando oportunidades...</p>
+          <p class="text-xs text-pliega-muted" id="contador-activas">Sincronizando con la base de datos...</p>
         </div>
       </div>
 
@@ -244,86 +244,12 @@
   </main>
 
   <script>
-    // SUPABASE
+    // SUPABASE CLIENTE
     const supabaseUrl = 'https://zraygpraqlwkbcipoefa.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYXlncHJhcWx3a2JjaXBvZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjAxNzAsImV4cCI6MjEwNTEzNjE3MH0.y7jqQ0QcnoRXOyHpP6FccYTmEDYzXOZqSCpCKEP_lqs';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // DATOS DE CONVOCATORIAS
-    const convocatoriasBD = [
-      {
-        id: 1,
-        titulo: "Bolsa Urgente de Educadores/as de Educación Especial para Centros Públicos",
-        organismo: "Conselleria d'Educació",
-        ccaa: "Comunitat Valenciana",
-        ambito: "autonomico",
-        puesto: "Educación Especial",
-        tipo: "interinos",
-        tipoEtiqueta: "Bolsa Urgente (Bajas/Interinos)",
-        colorEtiqueta: "bg-amber-100 text-amber-900 border-amber-300",
-        fechaFin: "2026-09-29",
-        requisitos: "Técnico Superior en Integración Social o título de Grado habilitante. Baremación directa de méritos.",
-        urlSede: "https://ceice.gva.es"
-      },
-      {
-        id: 2,
-        titulo: "Oposición Libre: 45 Plazas Cuerpo de Maestros Pedagogía Terapéutica y AL",
-        organismo: "Consejería de Educación",
-        ccaa: "Comunidad de Madrid",
-        ambito: "autonomico",
-        puesto: "Educación Especial",
-        tipo: "examenes",
-        tipoEtiqueta: "Examen / Oposición (Plaza Fija)",
-        colorEtiqueta: "bg-blue-100 text-blue-900 border-blue-300",
-        fechaFin: "2026-10-18",
-        requisitos: "Grado en Magisterio (Mención Educación Especial o AL). Fase de examen eliminatorio.",
-        urlSede: "https://www.comunidad.madrid"
-      },
-      {
-        id: 3,
-        titulo: "Bolsa Extraordinaria de Personal de Sustitución para Centros de Educación Especial",
-        organismo: "Junta de Andalucía",
-        ccaa: "Andalucía",
-        ambito: "autonomico",
-        puesto: "Educación Especial",
-        tipo: "interinos",
-        tipoEtiqueta: "Bolsa Urgente (Bajas/Interinos)",
-        colorEtiqueta: "bg-amber-100 text-amber-900 border-amber-300",
-        fechaFin: "2026-10-08",
-        requisitos: "Titulación en Educación o Integración Social. Sin necesidad de examen de bolsa previo.",
-        urlSede: "https://www.juntadeandalucia.es/educacion"
-      },
-      {
-        id: 4,
-        titulo: "Bolsa Permanente de Auxiliares Administrativos (Subgrupo C2)",
-        organismo: "Ayuntamiento de Gandía",
-        ccaa: "Comunitat Valenciana",
-        ambito: "local",
-        puesto: "Administración",
-        tipo: "fijo",
-        tipoEtiqueta: "Bolsa Ordinaria Permanente",
-        colorEtiqueta: "bg-stone-100 text-stone-800 border-stone-300",
-        fechaFin: "2026-09-24",
-        requisitos: "Graduado Escolar o ESO. Requiere puntuación de baremo o superación de prueba anterior.",
-        urlSede: "https://gandia.sedelectronica.es"
-      },
-      {
-        id: 5,
-        titulo: "Convocatoria Oposición Libre: Cuerpo General Administrativo de la AGE (C1)",
-        organismo: "Ministerio para la Transformación Digital y Función Pública",
-        ccaa: "Estatal",
-        ambito: "estatal",
-        puesto: "Administración",
-        tipo: "examenes",
-        tipoEtiqueta: "Examen Estatal (Plaza Fija)",
-        colorEtiqueta: "bg-blue-100 text-blue-900 border-blue-300",
-        fechaFin: "2026-10-06",
-        requisitos: "Bachillerato o Técnico FP. Examen único tipo test en sedes autonómicas.",
-        urlSede: "https://ips.redsara.es"
-      }
-    ];
-
-    // ESTADO
+    // ESTADO POR DEFECTO
     let preferencias = {
       fijado: false,
       alerta_interinos: true,
@@ -334,12 +260,11 @@
       alerta_nacional: true
     };
 
-    // RECUPERAR DATOS AL CARGAR
+    // RECUPERAR PREFERENCIAS LOCALES
     const guardadas = localStorage.getItem("pliega_preferencias");
     if (guardadas) {
       try {
-        const parsed = JSON.parse(guardadas);
-        preferencias = Object.assign(preferencias, parsed);
+        preferencias = Object.assign(preferencias, JSON.parse(guardadas));
       } catch(e) {}
     }
 
@@ -397,7 +322,7 @@
       actualizarVistasFijado();
     }
 
-    // CHIPS
+    // GESTIÓN DE CHIPS
     function renderizarChipsCCAA() {
       const cont = document.getElementById("chips-ccaa");
       if (!cont) return;
@@ -452,28 +377,25 @@
       renderizarFeed();
     }
 
-    // ACCIÓN INMEDIATA Y BLINDADA: GUARDAR Y FIJAR
+    // ACCIÓN: GUARDAR Y FIJAR
     function guardarYFijarPreferencias() {
-      // 1. Leer valores de las casillas
       preferencias.fijado = true;
       preferencias.alerta_interinos = document.getElementById("chk-interinos").checked;
       preferencias.alerta_examenes = document.getElementById("chk-examenes").checked;
       preferencias.alerta_fijo = document.getElementById("chk-fijo").checked;
       preferencias.alerta_nacional = document.getElementById("filtro-nacional").checked;
 
-      // 2. Guardar en memoria de navegador
       localStorage.setItem("pliega_preferencias", JSON.stringify(preferencias));
 
-      // 3. Cambiar la vista de inmediato
       actualizarVistasFijado();
       renderizarFeed();
-      lanzarToast("Búsqueda Fijada", "Se ha guardado tu recuadro de opciones activas.");
+      lanzarToast("Búsqueda Fijada", "Se han guardado tus filtros y el panel está activo.");
 
-      // 4. Intentar sincronizar en Supabase en segundo plano sin bloquear la pantalla
-      const usuarioLocal = localStorage.getItem("pliega_user");
-      if (usuarioLocal) {
+      // Sincronizar en Supabase si el usuario tiene cuenta
+      const uLocal = localStorage.getItem("pliega_user");
+      if (uLocal) {
         try {
-          const u = JSON.parse(usuarioLocal);
+          const u = JSON.parse(uLocal);
           supabaseClient
             .from('usuarios_pliega')
             .update({
@@ -539,20 +461,42 @@
       return new Date(fechaStr + "T00:00:00").toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    // FEED CON ENLACES DIRECTOS A SEDES OFICIALES
-    function renderizarFeed() {
+    // FEED CONECTADO EN TIEMPO REAL A SUPABASE
+    async function renderizarFeed() {
       const feed = document.getElementById("feed-convocatorias");
       if (!feed) return;
-      feed.innerHTML = "";
 
+      feed.innerHTML = `
+        <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl">
+          <p class="text-xs text-pliega-muted animate-pulse">Sincronizando ofertas oficiales en tiempo real...</p>
+        </div>
+      `;
+
+      // Consultar la base de datos oficial
+      const hoyISO = new Date().toISOString().split('T')[0];
+      const { data: convocatoriasBD, error } = await supabaseClient
+        .from('convocatorias')
+        .select('*')
+        .eq('activo', true)
+        .gte('fecha_fin', hoyISO);
+
+      if (error || !convocatoriasBD) {
+        console.error("Error al cargar convocatorias:", error);
+        feed.innerHTML = `
+          <div class="p-6 text-center bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700">
+            Error temporal de conexión con la sede de convocatorias. Inténtalo en unos minutos.
+          </div>
+        `;
+        return;
+      }
+
+      // Filtrado por preferencias del usuario
       const chkInterinos = preferencias.alerta_interinos;
       const chkExamenes = preferencias.alerta_examenes;
       const chkFijo = preferencias.alerta_fijo;
       const chkNacional = preferencias.alerta_nacional;
 
       const resultados = convocatoriasBD.filter(item => {
-        if (calcularDias(item.fechaFin) <= 0) return false;
-
         if (item.tipo === "interinos" && !chkInterinos) return false;
         if (item.tipo === "examenes" && !chkExamenes) return false;
         if (item.tipo === "fijo" && !chkFijo) return false;
@@ -575,26 +519,27 @@
         feed.innerHTML = `
           <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl">
             <p class="text-sm font-bold text-pliega-text">No hay oportunidades abiertas con esta combinación exacta.</p>
-            <p class="text-xs text-pliega-muted mt-1">Prueba a pulsar arriba en "Modificar filtros" para marcar más opciones.</p>
+            <p class="text-xs text-pliega-muted mt-1">Prueba a pulsar arriba en "Modificar filtros" para ampliar tus opciones.</p>
           </div>
         `;
         return;
       }
 
+      feed.innerHTML = "";
       resultados.forEach(item => {
-        const dias = calcularDias(item.fechaFin);
+        const dias = calcularDias(item.fecha_fin);
         const card = document.createElement("article");
         card.className = "p-5 bg-white border border-pliega-border rounded-2xl hover:border-stone-400 transition shadow-sm space-y-3.5";
         card.innerHTML = `
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${item.colorEtiqueta}">${item.tipoEtiqueta}</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${item.color_etiqueta}">${item.tipo_etiqueta}</span>
               <span class="text-xs text-pliega-muted font-medium">${item.organismo} • ${item.ccaa}</span>
             </div>
             
             <div class="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-lg">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span>Expira: ${formatearFecha(item.fechaFin)} (${dias} ${dias === 1 ? 'día' : 'días'})</span>
+              <span>Expira: ${formatearFecha(item.fecha_fin)} (${dias} ${dias === 1 ? 'día' : 'días'})</span>
             </div>
           </div>
 
@@ -608,7 +553,7 @@
               Puesto: <strong class="text-stone-800">${item.puesto}</strong>
             </div>
 
-            <a href="${item.urlSede}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-5 py-2.5 rounded-xl transition shadow-sm">
+            <a href="${item.url_sede}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-5 py-2.5 rounded-xl transition shadow-sm">
               <span>Inscribirse en Sede Oficial</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             </a>
@@ -634,7 +579,7 @@
       toast.classList.remove("translate-y-0", "opacity-100");
     }
 
-    // INICIO
+    // INICIALIZACIÓN
     const u = localStorage.getItem("pliega_user");
     if (u) {
       try {
