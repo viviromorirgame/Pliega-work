@@ -10,137 +10,179 @@ if (!SUPABASE_SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-// Convocatorias y bolsas oficiales reales activas en España y CC.AA.
-const CONVOCATORIAS_OFICIALES = [
-  {
-    titulo: "Adjudicación Continua de Puestos de Difícil Cobertura: Educadores/as de Educación Especial",
-    organismo: "Conselleria d'Educació, Cultura i Esport",
+function mapearSector(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes('educaci') || t.includes('especial') || t.includes('pedagog') || t.includes('audici') || t.includes('integraci') || t.includes('tis') || t.includes('apoyo educat')) {
+    return 'Educación Especial';
+  }
+  if (t.includes('maestr') || t.includes('docente') || t.includes('profesor') || t.includes('secundaria') || t.includes('primaria') || t.includes('infantil')) {
+    return 'Educación / Docencia';
+  }
+  if (t.includes('administra') || t.includes('auxiliar') || t.includes('gesti') || t.includes('subaltern') || t.includes('tramitac')) {
+    return 'Administración';
+  }
+  if (t.includes('enferm') || t.includes('medic') || t.includes('tcae') || t.includes('sanit') || t.includes('salud') || t.includes('farmac')) {
+    return 'Sanidad';
+  }
+  if (t.includes('social') || t.includes('psicol')) {
+    return 'Trabajo Social';
+  }
+  if (t.includes('informát') || t.includes('telecom') || t.includes('sistemas') || t.includes('programad')) {
+    return 'Informática / Tecnología';
+  }
+  return 'Servicios / Oficios';
+}
+
+function mapearTipo(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes('difícil cobertura') || t.includes('dificil cobertura') || t.includes('urgente') || t.includes('sustituc') || t.includes('interin') || t.includes('adjudicaci')) {
+    return {
+      tipo: 'interinos',
+      tipo_etiqueta: t.includes('difícil cobertura') ? 'Difícil Cobertura (Urgente)' : 'Bolsa Urgente (Interinos)',
+      color_etiqueta: 'bg-amber-100 text-amber-900 border-amber-300'
+    };
+  }
+  if (t.includes('oposici') || t.includes('examen') || t.includes('selectiv') || t.includes('pruebas selectivas') || t.includes('concurso-oposición')) {
+    return {
+      tipo: 'examenes',
+      tipo_etiqueta: 'Examen / Oposición',
+      color_etiqueta: 'bg-blue-100 text-blue-900 border-blue-300'
+    };
+  }
+  return {
+    tipo: 'fijo',
+    tipo_etiqueta: 'Bolsa Ordinaria',
+    color_etiqueta: 'bg-stone-100 text-stone-800 border-stone-300'
+  };
+}
+
+function mapearCCAA(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes('valenc') || t.includes('gva') || t.includes('alicante') || t.includes('castellón')) return { ccaa: 'Comunitat Valenciana', ambito: 'autonomico' };
+  if (t.includes('andaluc') || t.includes('sevilla') || t.includes('málaga') || t.includes('granada')) return { ccaa: 'Andalucía', ambito: 'autonomico' };
+  if (t.includes('madrid')) return { ccaa: 'Comunidad de Madrid', ambito: 'autonomico' };
+  if (t.includes('catalu') || t.includes('gencat') || t.includes('barcelona')) return { ccaa: 'Cataluña', ambito: 'autonomico' };
+  if (t.includes('galicia') || t.includes('xunta')) return { ccaa: 'Galicia', ambito: 'autonomico' };
+  if (t.includes('castilla y león') || t.includes('burgos') || t.includes('valladolid')) return { ccaa: 'Castilla y León', ambito: 'autonomico' };
+  if (t.includes('castilla-la mancha')) return { ccaa: 'Castilla-La Mancha', ambito: 'autonomico' };
+  if (t.includes('aragón') || t.includes('zaragoza')) return { ccaa: 'Aragón', ambito: 'autonomico' };
+  if (t.includes('murcia')) return { ccaa: 'Murcia', ambito: 'autonomico' };
+  if (t.includes('canarias')) return { ccaa: 'Islas Canarias', ambito: 'autonomico' };
+  if (t.includes('balear')) return { ccaa: 'Islas Baleares', ambito: 'autonomico' };
+  if (t.includes('asturias')) return { ccaa: 'Asturias', ambito: 'autonomico' };
+  if (t.includes('extremadura')) return { ccaa: 'Extremadura', ambito: 'autonomico' };
+  if (t.includes('navarra')) return { ccaa: 'Navarra', ambito: 'autonomico' };
+  if (t.includes('cantabria')) return { ccaa: 'Cantabria', ambito: 'autonomico' };
+  if (t.includes('rioja')) return { ccaa: 'La Rioja', ambito: 'autonomico' };
+  if (t.includes('vasco') || t.includes('euskadi')) return { ccaa: 'País Vasco', ambito: 'autonomico' };
+  return { ccaa: 'Estatal', ambito: 'estatal' };
+}
+
+async function obtenerConvocatoriasReales() {
+  const convocatorias = [];
+
+  // 1. Canal Directo GVA (Educación y Difícil Cobertura en la sede oficial activa)
+  convocatorias.push({
+    titulo: "Adjudicaciones continuas y provisión de puestos de difícil cobertura docentes",
+    organismo: "Conselleria d'Educació, Cultura, Universitats i Ocupació (GVA)",
+    url_sede: "https://ceice.gva.es/es/web/rrhh-educacion/adjudicaciones-continuas",
+    requisitos: "Convocatoria periódica de sustituciones urgentes y plazas docentes sin cubrir para maestros y profesorado.",
     ccaa: "Comunitat Valenciana",
     ambito: "autonomico",
     puesto: "Educación Especial",
     tipo: "interinos",
     tipo_etiqueta: "Difícil Cobertura (Urgente)",
     color_etiqueta: "bg-amber-100 text-amber-900 border-amber-300",
-    fecha_fin: "2026-10-15",
-    requisitos: "Técnico Superior en Integración Social (TIS) o equivalente. Solicitud telemática continua de vacantes sin examen previo.",
-    url_sede: "https://ceice.gva.es/es/web/rrhh-educacion/adjudicaciones-continuas"
-  },
-  {
-    titulo: "Bolsa Extraordinaria Urgente: Personal Técnico de Integración Social (PTIS)",
-    organismo: "Consejería de Desarrollo Educativo y FP",
-    ccaa: "Andalucía",
-    ambito: "autonomico",
-    puesto: "Educación Especial",
-    tipo: "interinos",
-    tipo_etiqueta: "Bolsa Urgente (Interinos)",
-    color_etiqueta: "bg-amber-100 text-amber-900 border-amber-300",
-    fecha_fin: "2026-10-10",
-    requisitos: "Título de Técnico Superior en Integración Social o Magisterio. Baremación directa de méritos.",
-    url_sede: "https://www.juntadeandalucia.es/educacion/portals/web/cedfpfp/novedades"
-  },
-  {
-    titulo: "Oposición Libre: Maestros Especialidad Pedagogía Terapéutica y Audición y Lenguaje",
-    organismo: "Consejería de Educación, Ciencia y Universidades",
-    ccaa: "Comunidad de Madrid",
-    ambito: "autonomico",
-    puesto: "Educación Especial",
-    tipo: "examenes",
-    tipo_etiqueta: "Examen / Oposición",
-    color_etiqueta: "bg-blue-100 text-blue-900 border-blue-300",
-    fecha_fin: "2026-10-20",
-    requisitos: "Grado en Educación Primaria con mención en Pedagogía Terapéutica o AL. Pruebas selectivas eliminatorias.",
-    url_sede: "https://www.comunidad.madrid/servicios/empleo/empleo-publico"
-  },
-  {
-    titulo: "Bolsa Permanente de Trabajo: Cuerpo Auxiliar de la Administración (C2)",
-    organismo: "Generalitat Valenciana (GVA)",
-    ccaa: "Comunitat Valenciana",
-    ambito: "autonomico",
-    puesto: "Administración",
-    tipo: "fijo",
-    tipo_etiqueta: "Bolsa Ordinaria",
-    color_etiqueta: "bg-stone-100 text-stone-800 border-stone-300",
-    fecha_fin: "2026-11-30",
-    requisitos: "Graduado en ESO o equivalente. Inscripción telemática en las listas de empleo temporal de la Generalitat.",
-    url_sede: "https://sede.gva.es"
-  },
-  {
-    titulo: "Convocatoria Oposición Libre: Cuerpo General Administrativo de la AGE (Subgrupo C1)",
-    organismo: "Ministerio para la Transformación Digital y de la Función Pública",
-    ccaa: "Estatal",
-    ambito: "estatal",
-    puesto: "Administración",
-    tipo: "examenes",
-    tipo_etiqueta: "Examen / Oposición",
-    color_etiqueta: "bg-blue-100 text-blue-900 border-blue-300",
-    fecha_fin: "2026-10-25",
-    requisitos: "Título de Bachiller o Técnico. Inscripción telemática a través de la plataforma IPS del Punto de Acceso General.",
-    url_sede: "https://ips.redsara.es"
-  },
-  {
-    titulo: "Llamamiento Urgente de Sustitución: Enfermería de Urgencias y Atención Primaria",
-    organismo: "Servicio Gallego de Salud (SERGAS)",
-    ccaa: "Galicia",
-    ambito: "autonomico",
-    puesto: "Sanidad",
-    tipo: "interinos",
-    tipo_etiqueta: "Bolsa Urgente (Interinos)",
-    color_etiqueta: "bg-amber-100 text-amber-900 border-amber-300",
-    fecha_fin: "2026-10-05",
-    requisitos: "Grado o Diplomatura en Enfermería. Incorporación inmediata para cobertura temporal de bajas.",
-    url_sede: "https://www.sergas.gal"
-  },
-  {
-    titulo: "Bolsa de Empleo Temporal: Informática y Tecnologías de la Información (A2/C1)",
-    organismo: "Gobierno de Aragón",
-    ccaa: "Aragón",
-    ambito: "autonomico",
-    puesto: "Informática / Tecnología",
-    tipo: "fijo",
-    tipo_etiqueta: "Bolsa Ordinaria",
-    color_etiqueta: "bg-stone-100 text-stone-800 border-stone-300",
-    fecha_fin: "2026-10-18",
-    requisitos: "Grado en Informática, Telecomunicaciones o Técnico Superior en Desarrollo de Aplicaciones Web/Multiplataforma.",
-    url_sede: "https://www.aragon.es/tramites/empleo-publico"
+    fecha_fin: "2026-12-31"
+  });
+
+  // 2. Feed oficial del Punto de Acceso General del Gobierno de España
+  try {
+    console.log("-> Conectando al feed oficial del Estado y CC.AA...");
+    const res = await fetch("https://administracion.gob.es/pag_Home/empleoPublico/rss/ofertas-empleo-publico.rss", {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+    });
+
+    if (res.ok) {
+      const xml = await res.text();
+      const items = xml.split('<item>');
+      console.log(`-> Procesando ${items.length - 1} ofertas del feed oficial...`);
+
+      for (let i = 1; i < items.length; i++) {
+        const item = items[i];
+        const titleMatch = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || item.match(/<title>(.*?)<\/title>/);
+        const linkMatch = item.match(/<link><!\[CDATA\[(.*?)\]\]><\/link>/) || item.match(/<link>(.*?)<\/link>/);
+        const descMatch = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/) || item.match(/<description>(.*?)<\/description>/);
+
+        if (titleMatch && linkMatch) {
+          const titulo = titleMatch[1].replace(/&amp;/g, '&').replace(/<[^>]+>/g, '').trim();
+          const url_sede = linkMatch[1].trim();
+          const descripcion = descMatch ? descMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+          const fullText = `${titulo} ${descripcion}`;
+
+          const { tipo, tipo_etiqueta, color_etiqueta } = mapearTipo(fullText);
+          const puesto = mapearSector(fullText);
+          const { ccaa, ambito } = mapearCCAA(fullText);
+
+          // Fecha límite por defecto (30 días vista)
+          const f = new Date();
+          f.setDate(f.getDate() + 30);
+          const fecha_fin = f.toISOString().split('T')[0];
+
+          convocatorias.push({
+            titulo: titulo.substring(0, 240),
+            organismo: "Administración Convocante",
+            url_sede: url_sede,
+            requisitos: descripcion ? descripcion.substring(0, 280) : 'Ver detalles y tramitación telemática en el portal oficial.',
+            ccaa,
+            ambito,
+            puesto,
+            tipo,
+            tipo_etiqueta,
+            color_etiqueta,
+            fecha_fin
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Aviso conectando al feed del PAG:", err.message);
   }
-];
+
+  return convocatorias;
+}
 
 async function ejecutar() {
-  console.log("=== SINCRONIZANDO CONVOCATORIAS EN SUPABASE ===");
+  console.log("=== INICIANDO RASTREO REAL ===");
+  const lista = await obtenerConvocatoriasReales();
+  console.log(`Total de convocatorias extraídas: ${lista.length}`);
 
-  let guardadas = 0;
-  for (const item of CONVOCATORIAS_OFICIALES) {
-    const registro = {
-      titulo: item.titulo,
-      organismo: item.organismo,
-      ccaa: item.ccaa,
-      ambito: item.ambito,
-      puesto: item.puesto,
-      tipo: item.tipo,
-      tipo_etiqueta: item.tipo_etiqueta,
-      color_etiqueta: item.color_etiqueta,
-      fecha_fin: item.fecha_fin,
-      requisitos: item.requisitos,
-      url_sede: item.url_sede,
-      activo: true
-    };
-
+  let insertadas = 0;
+  for (const item of lista) {
     const { error } = await supabase
       .from('convocatorias')
-      .upsert(registro, { onConflict: 'titulo' });
+      .upsert({
+        titulo: item.titulo,
+        organismo: item.organismo,
+        ccaa: item.ccaa,
+        ambito: item.ambito,
+        puesto: item.puesto,
+        tipo: item.tipo,
+        tipo_etiqueta: item.tipo_etiqueta,
+        color_etiqueta: item.color_etiqueta,
+        fecha_fin: item.fecha_fin,
+        requisitos: item.requisitos,
+        url_sede: item.url_sede,
+        activo: true
+      }, { onConflict: 'titulo' });
 
-    if (error) {
-      console.warn("Aviso en:", item.titulo, error.message);
-    } else {
-      guardadas++;
-      console.log(`[OK] Guardada: ${item.titulo}`);
-    }
+    if (!error) insertadas++;
   }
 
-  console.log(`=== FIN: ${guardadas} convocatorias activas sincronizadas con éxito ===`);
+  console.log(`=== FIN: ${insertadas} convocatorias reales guardadas en Supabase ===`);
 }
 
 ejecutar().catch(err => {
-  console.error("Fallo general:", err);
+  console.error(err);
   process.exit(1);
 });
