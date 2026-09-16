@@ -2,12 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pliega Work — Asistente de Bolsas y Empleo Público</title>
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
     tailwind.config = {
       theme: {
@@ -15,7 +13,6 @@
           colors: {
             pliega: {
               sand: '#F7F5F0',
-              card: '#FFFFFF',
               border: '#E2DBD0',
               text: '#221F1B',
               muted: '#6E6659',
@@ -29,70 +26,7 @@
     }
   </script>
 </head>
-<body class="bg-pliega-sand text-pliega-text min-h-screen font-sans antialiased flex flex-col selection:bg-pliega-brown selection:text-white pb-16">
-
-  <!-- TOAST DE CONFIRMACIÓN -->
-  <div id="toast-msg" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 transform -translate-y-24 opacity-0 pointer-events-none transition-all duration-300 bg-stone-900 text-stone-100 p-4 rounded-xl shadow-2xl border border-stone-700 flex items-start gap-3">
-    <div class="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center shrink-0">
-      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-    </div>
-    <div class="flex-1 text-xs">
-      <p class="font-bold text-white" id="toast-title">Aviso</p>
-      <p class="text-stone-300 mt-0.5" id="toast-body">Detalle del mensaje.</p>
-    </div>
-    <button onclick="cerrarToast()" class="text-stone-400 hover:text-white text-lg leading-none">&times;</button>
-  </div>
-
-  <!-- MODAL DE VINCULACIÓN WHATSAPP -->
-  <div id="modal-registro" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-    <div class="bg-white rounded-2xl border border-pliega-border max-w-md w-full p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-start">
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Prueba Gratuita 30 Días</span>
-          <h3 class="text-lg font-bold text-pliega-text mt-1">Activa tu Asistente en WhatsApp</h3>
-        </div>
-        <button onclick="cerrarModal()" class="text-stone-400 hover:text-stone-700 text-2xl leading-none">&times;</button>
-      </div>
-
-      <p class="text-xs text-pliega-muted">
-        Recibe avisos inmediatos con enlace directo de inscripción en cuanto se publiquen vacantes acordes a tu titulación y filtros.
-      </p>
-
-      <form id="form-registro" onsubmit="guardarUsuarioInicial(event)" class="space-y-3 pt-1">
-        <div>
-          <label class="block text-xs font-semibold text-pliega-text mb-1">Nombre o Alias</label>
-          <input type="text" id="reg-nombre" required placeholder="Ej. Carlos" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-pliega-text mb-1">Teléfono Móvil (WhatsApp)</label>
-          <input type="tel" id="reg-whatsapp" required placeholder="+34 600 000 000" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-pliega-text mb-1">Nivel de Titulación Máxima</label>
-          <select id="reg-titulacion" class="w-full text-xs p-2.5 rounded-lg border border-pliega-border bg-pliega-sand focus:outline-none focus:border-pliega-brown">
-            <option value="Grado Universitario / Máster">Grado Universitario / Máster (Grupo A1/A2)</option>
-            <option value="Bachillerato / FP Grado Superior">Bachillerato / FP Grado Superior (Grupo B/C1)</option>
-            <option value="Graduado Escolar / ESO">Graduado Escolar / ESO (Grupo C2)</option>
-            <option value="Otras agrupaciones">Sin titulación requerida / Agrupación profesional</option>
-          </select>
-        </div>
-
-        <div class="p-3 bg-stone-50 border border-stone-200 rounded-lg text-[11px] text-pliega-muted space-y-1">
-          <div class="flex items-center gap-1.5 text-stone-800 font-semibold">
-            <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-            Primeros 30 días gratuitos
-          </div>
-          <p>Sin permanencia. Podrás darte de baja en cualquier momento respondiendo BAJA por WhatsApp.</p>
-        </div>
-
-        <button type="submit" id="btn-submit" class="w-full bg-pliega-brown hover:bg-pliega-hover text-white text-xs font-bold py-3 rounded-lg transition shadow-md">
-          Activar y Vincular WhatsApp &rarr;
-        </button>
-      </form>
-    </div>
-  </div>
+<body class="bg-pliega-sand text-pliega-text min-h-screen font-sans antialiased flex flex-col pb-16">
 
   <!-- CABECERA -->
   <header class="bg-white border-b border-pliega-border sticky top-0 z-30">
@@ -101,104 +35,92 @@
         <div class="w-3.5 h-3.5 bg-pliega-brown rounded-sm rotate-45"></div>
         <span class="font-bold text-lg tracking-tight text-pliega-text">Pliega<span class="text-pliega-muted font-normal text-xs ml-1">work</span></span>
       </div>
-
-      <div class="flex items-center gap-2">
-        <button onclick="abrirModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-[11px] sm:text-xs font-semibold hover:bg-emerald-100 transition shadow-sm">
-          <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-          <span id="label-whatsapp">Vincular WhatsApp</span>
-        </button>
-      </div>
+      <button class="px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-semibold">
+        ● Asistente Activo
+      </button>
     </div>
   </header>
 
-  <!-- CONTENEDOR PRINCIPAL -->
   <main class="max-w-4xl mx-auto px-4 py-6 w-full space-y-6">
 
-    <!-- 1. RESUMEN CUANDO ESTÁ FIJADO -->
-    <section id="panel-fijado" class="hidden bg-white p-5 rounded-2xl border-2 border-stone-800 shadow-md space-y-3">
-      <div class="flex flex-wrap justify-between items-center gap-2 border-b border-stone-100 pb-3">
+    <!-- PANEL RESUMEN FIJADO -->
+    <section id="panel-fijado" class="bg-white p-5 rounded-2xl border-2 border-stone-800 shadow-md space-y-3">
+      <div class="flex justify-between items-center border-b border-stone-100 pb-3">
         <div class="flex items-center gap-2">
           <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-stone-900">Búsqueda y Alertas Fijadas</h2>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-stone-900">Búsqueda y Alertas Activas</h2>
         </div>
-        <button onclick="editarFiltros()" class="text-xs font-bold text-pliega-brown hover:underline flex items-center gap-1">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+        <button onclick="alternarFiltros()" class="text-xs font-bold text-pliega-brown hover:underline">
           Modificar filtros
         </button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
         <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
-          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Tipos de Convocatoria</span>
-          <div id="resumen-tipos" class="flex flex-wrap gap-1 font-semibold text-pliega-text"></div>
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Tipos</span>
+          <div id="resumen-tipos" class="flex flex-wrap gap-1 font-semibold"></div>
         </div>
-
         <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
-          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Puestos / Sectores</span>
-          <div id="resumen-puestos" class="flex flex-wrap gap-1 font-semibold text-pliega-text"></div>
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Puestos</span>
+          <div id="resumen-puestos" class="flex flex-wrap gap-1 font-semibold"></div>
         </div>
-
         <div class="bg-pliega-sand p-3 rounded-xl border border-pliega-border">
-          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Ámbito Territorial</span>
-          <div id="resumen-ccaa" class="flex flex-wrap gap-1 font-semibold text-pliega-text"></div>
+          <span class="text-[10px] font-bold text-pliega-muted uppercase block mb-1">Ámbito</span>
+          <div id="resumen-ccaa" class="flex flex-wrap gap-1 font-semibold"></div>
         </div>
       </div>
     </section>
 
-    <!-- 2. FORMULARIO DE FILTROS -->
-    <section id="panel-edicion" class="bg-white p-5 rounded-2xl border border-pliega-border shadow-sm space-y-5">
+    <!-- FORMULARIO DE FILTROS (DESPLEGABLE) -->
+    <section id="panel-edicion" class="hidden bg-white p-5 rounded-2xl border border-pliega-border shadow-sm space-y-5">
       <div class="border-b border-stone-100 pb-3">
-        <h2 class="text-sm font-bold text-pliega-text">Configura tu Búsqueda y Alertas</h2>
-        <p class="text-xs text-pliega-muted mt-0.5">Elige los puestos, situaciones y lugares exactos que quieres seguir.</p>
+        <h2 class="text-sm font-bold text-pliega-text">Configurar Filtros</h2>
       </div>
 
-      <!-- Paso 1: Tipos -->
+      <!-- Tipos -->
       <div class="space-y-2">
-        <label class="block text-xs font-bold text-pliega-text">1. ¿Qué tipos de procesos te interesan?</label>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
-            <input type="checkbox" id="chk-interinos" class="rounded w-4 h-4 accent-stone-800">
-            <span><strong>Bolsas de Interinos</strong> (Bajas/Urgente)</span>
+        <label class="block text-xs font-bold">1. Tipo de proceso:</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
+            <input type="checkbox" id="chk-interinos" onchange="actualizarPreferencia('alerta_interinos', this.checked)">
+            <span>Bolsas Urgentes (Interinos)</span>
           </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
-            <input type="checkbox" id="chk-examenes" class="rounded w-4 h-4 accent-stone-800">
-            <span><strong>Exámenes / Oposición</strong> (Plaza fija)</span>
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
+            <input type="checkbox" id="chk-examenes" onchange="actualizarPreferencia('alerta_examenes', this.checked)">
+            <span>Exámenes / Oposición</span>
           </label>
-          <label class="flex items-center gap-2 p-2.5 rounded-xl border border-pliega-border bg-pliega-sand cursor-pointer select-none text-xs">
-            <input type="checkbox" id="chk-fijo" class="rounded w-4 h-4 accent-stone-800">
-            <span><strong>Bolsas Ordinarias</strong> (Méritos)</span>
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border bg-pliega-sand cursor-pointer">
+            <input type="checkbox" id="chk-fijo" onchange="actualizarPreferencia('alerta_fijo', this.checked)">
+            <span>Bolsas Ordinarias</span>
           </label>
         </div>
       </div>
 
-      <!-- Paso 2: Puestos -->
-      <div class="space-y-2 pt-2 border-t border-stone-100">
-        <div class="flex justify-between items-center">
-          <label class="block text-xs font-bold text-pliega-text">2. Puestos o Especialidades:</label>
-          <span class="text-[11px] text-pliega-muted">(Si dejas vacío, verás todos)</span>
-        </div>
-        <div id="chips-puestos" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
-        <select id="selector-puestos" onchange="agregarPuesto(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border border-pliega-border text-pliega-text focus:outline-none focus:border-pliega-brown">
-          <option value="">+ Seleccionar puesto o especialidad...</option>
+      <!-- Puestos -->
+      <div class="space-y-2 pt-2 border-t">
+        <label class="block text-xs font-bold">2. Sectores y Especialidades:</label>
+        <div id="chips-puestos" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
+        <select id="selector-puestos" onchange="agregarPuesto(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border">
+          <option value="">+ Añadir Sector...</option>
           <option value="Educación Especial">Educación Especial / PT / AL</option>
           <option value="Educación / Docencia">Educación / Docencia General</option>
-          <option value="Administración">Administrativo / Auxiliar de Gestión</option>
-          <option value="Sanidad">Sanidad (Enfermería, Médicos, TCAE)</option>
-          <option value="Trabajo Social">Trabajo Social / Integración Social</option>
-          <option value="Informática / Tecnología">Informática / Sistemas</option>
-          <option value="Servicios / Oficios">Servicios Generales / Mantenimiento / Oficios</option>
+          <option value="Administración">Administración / Auxiliares</option>
+          <option value="Sanidad">Sanidad</option>
+          <option value="Trabajo Social">Trabajo Social</option>
+          <option value="Informática / Tecnología">Informática / Tecnología</option>
+          <option value="Servicios / Oficios">Servicios Generales / Oficios</option>
         </select>
       </div>
 
-      <!-- Paso 3: Territorio -->
-      <div class="space-y-2 pt-2 border-t border-stone-100">
-        <label class="block text-xs font-bold text-pliega-text">3. Territorio y Ámbito:</label>
-        <label class="flex items-center justify-between p-2.5 rounded-xl bg-pliega-sand border border-pliega-border cursor-pointer select-none mb-2">
-          <span class="text-xs text-pliega-text font-semibold">Incluir Oportunidades Estatales (BOE / Ministerios)</span>
-          <input type="checkbox" id="filtro-nacional" class="rounded w-4 h-4 accent-stone-800">
+      <!-- Ámbito -->
+      <div class="space-y-2 pt-2 border-t">
+        <label class="block text-xs font-bold">3. Territorio:</label>
+        <label class="flex items-center justify-between p-2.5 rounded-xl bg-pliega-sand border cursor-pointer text-xs mb-2">
+          <span>Incluir convocatorias Estatales (AGE / Ministerios)</span>
+          <input type="checkbox" id="filtro-nacional" onchange="actualizarPreferencia('alerta_nacional', this.checked)">
         </label>
-        <div id="chips-ccaa" class="flex flex-wrap gap-1.5 min-h-[28px]"></div>
-        <select id="selector-ccaa" onchange="agregarCCAA(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border border-pliega-border text-pliega-text focus:outline-none focus:border-pliega-brown">
+        <div id="chips-ccaa" class="flex flex-wrap gap-1.5 min-h-[24px]"></div>
+        <select id="selector-ccaa" onchange="agregarCCAA(this.value)" class="w-full text-xs p-2.5 bg-pliega-sand rounded-xl border">
           <option value="">+ Añadir Comunidad Autónoma...</option>
           <option value="Andalucía">Andalucía</option>
           <option value="Aragón">Aragón</option>
@@ -220,341 +142,177 @@
         </select>
       </div>
 
-      <!-- BOTÓN PRINCIPAL -->
-      <div class="pt-3 border-t border-stone-100">
-        <button type="button" onclick="guardarYFijarPreferencias()" class="w-full bg-stone-900 hover:bg-black text-white text-sm font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 active:scale-95">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-          Guardar y Fijar mi Búsqueda
-        </button>
-      </div>
+      <button onclick="alternarFiltros()" class="w-full bg-stone-900 text-white text-xs font-bold py-3 rounded-xl">
+        Aplicar y Cerrar
+      </button>
     </section>
 
-    <!-- 3. LISTADO DE CONVOCATORIAS -->
-    <section class="space-y-4 pt-2">
+    <!-- LISTADO -->
+    <section class="space-y-4">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-base font-bold text-pliega-text">Convocatorias y Bolsas en Plazo Oficial</h2>
-          <p class="text-xs text-pliega-muted" id="contador-activas">Sincronizando con la base de datos...</p>
+          <h2 class="text-base font-bold text-pliega-text">Convocatorias Abiertas Oficiales</h2>
+          <p class="text-xs text-pliega-muted" id="contador-activas">Cargando...</p>
         </div>
       </div>
-
       <div id="feed-convocatorias" class="space-y-3.5"></div>
     </section>
 
   </main>
 
   <script>
-    // SUPABASE CLIENTE
     const supabaseUrl = 'https://zraygpraqlwkbcipoefa.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYXlncHJhcWx3a2JjaXBvZWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjAxNzAsImV4cCI6MjEwNTEzNjE3MH0.y7jqQ0QcnoRXOyHpP6FccYTmEDYzXOZqSCpCKEP_lqs';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // ESTADO POR DEFECTO
     let preferencias = {
-      fijado: false,
       alerta_interinos: true,
       alerta_examenes: true,
       alerta_fijo: true,
-      puestos: ["Educación Especial"],
-      comunidades: ["Comunitat Valenciana", "Comunidad de Madrid"],
+      puestos: [],
+      comunidades: ["Comunitat Valenciana"],
       alerta_nacional: true
     };
 
-    // RECUPERAR PREFERENCIAS LOCALES
-    const guardadas = localStorage.getItem("pliega_preferencias");
+    const guardadas = localStorage.getItem("pliega_preferencias_v2");
     if (guardadas) {
-      try {
-        preferencias = Object.assign(preferencias, JSON.parse(guardadas));
-      } catch(e) {}
+      try { preferencias = Object.assign(preferencias, JSON.parse(guardadas)); } catch(e) {}
     }
 
-    function sincronizarControles() {
-      const cInterinos = document.getElementById("chk-interinos");
-      const cExamenes = document.getElementById("chk-examenes");
-      const cFijo = document.getElementById("chk-fijo");
-      const cNacional = document.getElementById("filtro-nacional");
-
-      if (cInterinos) cInterinos.checked = preferencias.alerta_interinos;
-      if (cExamenes) cExamenes.checked = preferencias.alerta_examenes;
-      if (cFijo) cFijo.checked = preferencias.alerta_fijo;
-      if (cNacional) cNacional.checked = preferencias.alerta_nacional;
-
-      renderizarChipsCCAA();
-      renderizarChipsPuestos();
-      actualizarVistasFijado();
-    }
-
-    function actualizarVistasFijado() {
-      const panelFijado = document.getElementById("panel-fijado");
-      const panelEdicion = document.getElementById("panel-edicion");
-
-      if (preferencias.fijado) {
-        panelFijado.classList.remove("hidden");
-        panelEdicion.classList.add("hidden");
-
-        const tipos = [];
-        if (preferencias.alerta_interinos) tipos.push("Bolsas Urgentes");
-        if (preferencias.alerta_examenes) tipos.push("Exámenes/Oposición");
-        if (preferencias.alerta_fijo) tipos.push("Bolsas Permanentes");
-        
-        document.getElementById("resumen-tipos").innerHTML = tipos.length
-          ? tipos.map(t => `<span class="bg-white px-2 py-0.5 rounded border border-stone-300 text-[11px]">${t}</span>`).join('')
-          : '<span class="text-stone-400 italic">Ninguno</span>';
-
-        document.getElementById("resumen-puestos").innerHTML = preferencias.puestos.length 
-          ? preferencias.puestos.map(p => `<span class="bg-stone-800 text-white px-2 py-0.5 rounded text-[11px]">${p}</span>`).join('')
-          : '<span class="text-stone-500 italic">Todos los puestos</span>';
-
-        const territorio = [...preferencias.comunidades];
-        if (preferencias.alerta_nacional) territorio.push("BOE / Estatal");
-        document.getElementById("resumen-ccaa").innerHTML = territorio.length
-          ? territorio.map(c => `<span class="bg-pliega-badge text-pliega-brown px-2 py-0.5 rounded text-[11px] border border-stone-300">${c}</span>`).join('')
-          : '<span class="text-stone-400 italic">Sin territorio</span>';
-
-      } else {
-        panelFijado.classList.add("hidden");
-        panelEdicion.classList.remove("hidden");
-      }
-    }
-
-    function editarFiltros() {
-      preferencias.fijado = false;
-      actualizarVistasFijado();
-    }
-
-    // GESTIÓN DE CHIPS
-    function renderizarChipsCCAA() {
-      const cont = document.getElementById("chips-ccaa");
-      if (!cont) return;
-      cont.innerHTML = "";
-      preferencias.comunidades.forEach(ccaa => {
-        const chip = document.createElement("span");
-        chip.className = "text-[11px] font-medium bg-pliega-badge text-pliega-brown px-2 py-0.5 rounded flex items-center gap-1 border border-stone-300";
-        chip.innerHTML = `${ccaa} <button type="button" onclick="removerCCAA('${ccaa}')" class="font-bold hover:text-red-700">&times;</button>`;
-        cont.appendChild(chip);
-      });
-    }
-
-    function agregarCCAA(val) {
-      if (val && !preferencias.comunidades.includes(val)) {
-        preferencias.comunidades.push(val);
-        renderizarChipsCCAA();
-        renderizarFeed();
-      }
-      document.getElementById("selector-ccaa").value = "";
-    }
-
-    function removerCCAA(val) {
-      preferencias.comunidades = preferencias.comunidades.filter(c => c !== val);
-      renderizarChipsCCAA();
+    function guardar() {
+      localStorage.setItem("pliega_preferencias_v2", JSON.stringify(preferencias));
+      actualizarResumen();
       renderizarFeed();
     }
 
-    function renderizarChipsPuestos() {
-      const cont = document.getElementById("chips-puestos");
-      if (!cont) return;
-      cont.innerHTML = "";
-      preferencias.puestos.forEach(p => {
-        const chip = document.createElement("span");
-        chip.className = "text-[11px] font-medium bg-stone-800 text-white px-2 py-0.5 rounded flex items-center gap-1";
-        chip.innerHTML = `${p} <button type="button" onclick="removerPuesto('${p}')" class="font-bold text-stone-300 hover:text-red-400">&times;</button>`;
-        cont.appendChild(chip);
-      });
+    function alternarFiltros() {
+      const p = document.getElementById("panel-edicion");
+      p.classList.toggle("hidden");
+    }
+
+    function actualizarPreferencia(campo, valor) {
+      preferencias[campo] = valor;
+      guardar();
     }
 
     function agregarPuesto(val) {
       if (val && !preferencias.puestos.includes(val)) {
         preferencias.puestos.push(val);
-        renderizarChipsPuestos();
-        renderizarFeed();
+        document.getElementById("selector-puestos").value = "";
+        renderizarChips();
+        guardar();
       }
-      document.getElementById("selector-puestos").value = "";
     }
 
     function removerPuesto(val) {
       preferencias.puestos = preferencias.puestos.filter(p => p !== val);
-      renderizarChipsPuestos();
-      renderizarFeed();
+      renderizarChips();
+      guardar();
     }
 
-    // ACCIÓN: GUARDAR Y FIJAR
-    function guardarYFijarPreferencias() {
-      preferencias.fijado = true;
-      preferencias.alerta_interinos = document.getElementById("chk-interinos").checked;
-      preferencias.alerta_examenes = document.getElementById("chk-examenes").checked;
-      preferencias.alerta_fijo = document.getElementById("chk-fijo").checked;
-      preferencias.alerta_nacional = document.getElementById("filtro-nacional").checked;
-
-      localStorage.setItem("pliega_preferencias", JSON.stringify(preferencias));
-
-      actualizarVistasFijado();
-      renderizarFeed();
-      lanzarToast("Búsqueda Fijada", "Se han guardado tus filtros y el panel está activo.");
-
-      // Sincronizar en Supabase si el usuario tiene cuenta
-      const uLocal = localStorage.getItem("pliega_user");
-      if (uLocal) {
-        try {
-          const u = JSON.parse(uLocal);
-          supabaseClient
-            .from('usuarios_pliega')
-            .update({
-              alerta_interinos: preferencias.alerta_interinos,
-              alerta_examenes: preferencias.alerta_examenes,
-              alerta_fijo: preferencias.alerta_fijo,
-              alerta_nacional: preferencias.alerta_nacional,
-              puestos: preferencias.puestos,
-              comunidades: preferencias.comunidades
-            })
-            .eq('whatsapp', u.whatsapp)
-            .then(res => {
-              if (res.error) console.log("Nota Supabase:", res.error.message);
-            });
-        } catch(e) {}
+    function agregarCCAA(val) {
+      if (val && !preferencias.comunidades.includes(val)) {
+        preferencias.comunidades.push(val);
+        document.getElementById("selector-ccaa").value = "";
+        renderizarChips();
+        guardar();
       }
     }
 
-    // MODAL REGISTRO
-    function abrirModal() { document.getElementById("modal-registro").classList.remove("hidden"); }
-    function cerrarModal() { document.getElementById("modal-registro").classList.add("hidden"); }
-
-    async function guardarUsuarioInicial(e) {
-      e.preventDefault();
-      const btn = document.getElementById("btn-submit");
-      btn.innerText = "Vinculando...";
-      btn.disabled = true;
-
-      const nuevoUsuario = {
-        nombre: document.getElementById("reg-nombre").value.trim(),
-        whatsapp: document.getElementById("reg-whatsapp").value.trim(),
-        titulacion: document.getElementById("reg-titulacion").value,
-        alerta_nacional: preferencias.alerta_nacional,
-        comunidades: preferencias.comunidades,
-        suscripcion_estado: 'trial_activo'
-      };
-
-      try {
-        const { error } = await supabaseClient.from('usuarios_pliega').insert([nuevoUsuario]);
-        if (error) throw error;
-
-        localStorage.setItem("pliega_user", JSON.stringify(nuevoUsuario));
-        document.getElementById("label-whatsapp").innerText = `✓ ${nuevoUsuario.whatsapp}`;
-        cerrarModal();
-        lanzarToast("WhatsApp Vinculado", `Avisos activados para ${nuevoUsuario.whatsapp}`);
-      } catch (err) {
-        alert("Error al conectar: " + err.message);
-      } finally {
-        btn.innerText = "Activar y Vincular WhatsApp →";
-        btn.disabled = false;
-      }
+    function removerCCAA(val) {
+      preferencias.comunidades = preferencias.comunidades.filter(c => c !== val);
+      renderizarChips();
+      guardar();
     }
 
-    // CÁLCULO DE FECHAS
-    function calcularDias(fechaStr) {
-      const hoy = new Date();
-      hoy.setHours(0,0,0,0);
-      const fin = new Date(fechaStr + "T23:59:59");
-      return Math.ceil((fin - hoy) / (1000 * 60 * 60 * 24));
+    function renderizarChips() {
+      const cp = document.getElementById("chips-puestos");
+      cp.innerHTML = preferencias.puestos.map(p => 
+        `<span class="bg-stone-800 text-white text-[11px] px-2 py-0.5 rounded flex items-center gap-1">${p} <button onclick="removerPuesto('${p}')" class="font-bold">&times;</button></span>`
+      ).join('');
+
+      const cc = document.getElementById("chips-ccaa");
+      cc.innerHTML = preferencias.comunidades.map(c => 
+        `<span class="bg-pliega-badge text-pliega-brown text-[11px] px-2 py-0.5 rounded flex items-center gap-1 border">${c} <button onclick="removerCCAA('${c}')" class="font-bold">&times;</button></span>`
+      ).join('');
     }
 
-    function formatearFecha(fechaStr) {
-      return new Date(fechaStr + "T00:00:00").toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    function actualizarResumen() {
+      document.getElementById("chk-interinos").checked = preferencias.alerta_interinos;
+      document.getElementById("chk-examenes").checked = preferencias.alerta_examenes;
+      document.getElementById("chk-fijo").checked = preferencias.alerta_fijo;
+      document.getElementById("filtro-nacional").checked = preferencias.alerta_nacional;
+
+      const tipos = [];
+      if (preferencias.alerta_interinos) tipos.push("Urgentes");
+      if (preferencias.alerta_examenes) tipos.push("Oposiciones");
+      if (preferencias.alerta_fijo) tipos.push("Ordinarias");
+      document.getElementById("resumen-tipos").innerHTML = tipos.length ? tipos.join(', ') : 'Ninguno';
+
+      document.getElementById("resumen-puestos").innerHTML = preferencias.puestos.length ? preferencias.puestos.join(', ') : 'Todos los sectores';
+
+      const terr = [...preferencias.comunidades];
+      if (preferencias.alerta_nacional) terr.push("Nacional");
+      document.getElementById("resumen-ccaa").innerHTML = terr.length ? terr.join(', ') : 'Sin especificar';
     }
 
-    // FEED CONECTADO EN TIEMPO REAL A SUPABASE
     async function renderizarFeed() {
       const feed = document.getElementById("feed-convocatorias");
-      if (!feed) return;
+      const contador = document.getElementById("contador-activas");
+      feed.innerHTML = `<div class="p-6 text-center text-xs text-pliega-muted">Consultando convocatorias vigentes...</div>`;
 
-      feed.innerHTML = `
-        <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl">
-          <p class="text-xs text-pliega-muted animate-pulse">Sincronizando ofertas oficiales en tiempo real...</p>
-        </div>
-      `;
-
-      // Consultar la base de datos oficial
-      const hoyISO = new Date().toISOString().split('T')[0];
-      const { data: convocatoriasBD, error } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from('convocatorias')
         .select('*')
-        .eq('activo', true)
-        .gte('fecha_fin', hoyISO);
+        .eq('activo', true);
 
-      if (error || !convocatoriasBD) {
-        console.error("Error al cargar convocatorias:", error);
-        feed.innerHTML = `
-          <div class="p-6 text-center bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700">
-            Error temporal de conexión con la sede de convocatorias. Inténtalo en unos minutos.
-          </div>
-        `;
+      if (error || !data) {
+        feed.innerHTML = `<div class="p-6 text-center text-xs text-red-600">Error al cargar datos.</div>`;
         return;
       }
 
-      // Filtrado por preferencias del usuario
-      const chkInterinos = preferencias.alerta_interinos;
-      const chkExamenes = preferencias.alerta_examenes;
-      const chkFijo = preferencias.alerta_fijo;
-      const chkNacional = preferencias.alerta_nacional;
+      const filtradas = data.filter(c => {
+        if (c.tipo === 'interinos' && !preferencias.alerta_interinos) return false;
+        if (c.tipo === 'examenes' && !preferencias.alerta_examenes) return false;
+        if (c.tipo === 'fijo' && !preferencias.alerta_fijo) return false;
 
-      const resultados = convocatoriasBD.filter(item => {
-        if (item.tipo === "interinos" && !chkInterinos) return false;
-        if (item.tipo === "examenes" && !chkExamenes) return false;
-        if (item.tipo === "fijo" && !chkFijo) return false;
+        if (preferencias.puestos.length > 0 && !preferencias.puestos.includes(c.puesto)) return false;
 
-        if (preferencias.puestos.length > 0 && !preferencias.puestos.includes(item.puesto)) {
-          return false;
-        }
-
-        if (item.ambito === "estatal") {
-          return chkNacional;
+        if (c.ambito === 'estatal') {
+          return preferencias.alerta_nacional;
         } else {
-          return preferencias.comunidades.includes(item.ccaa);
+          return preferencias.comunidades.includes(c.ccaa);
         }
       });
 
-      const contador = document.getElementById("contador-activas");
-      if (contador) contador.innerText = `${resultados.length} oportunidades coinciden con tu búsqueda.`;
+      contador.innerText = `${filtradas.length} convocatorias coinciden con tus filtros.`;
 
-      if (resultados.length === 0) {
+      if (filtradas.length === 0) {
         feed.innerHTML = `
-          <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl">
-            <p class="text-sm font-bold text-pliega-text">No hay oportunidades abiertas con esta combinación exacta.</p>
-            <p class="text-xs text-pliega-muted mt-1">Prueba a pulsar arriba en "Modificar filtros" para ampliar tus opciones.</p>
+          <div class="p-8 text-center bg-white border border-pliega-border rounded-2xl text-xs text-pliega-muted">
+            No hay convocatorias activas para esta combinación. Pulsa en <strong>Modificar filtros</strong> para abrir más opciones.
           </div>
         `;
         return;
       }
 
       feed.innerHTML = "";
-      resultados.forEach(item => {
-        const dias = calcularDias(item.fecha_fin);
+      filtradas.forEach(item => {
         const card = document.createElement("article");
-        card.className = "p-5 bg-white border border-pliega-border rounded-2xl hover:border-stone-400 transition shadow-sm space-y-3.5";
+        card.className = "p-5 bg-white border border-pliega-border rounded-2xl space-y-3 shadow-sm";
         card.innerHTML = `
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${item.color_etiqueta}">${item.tipo_etiqueta}</span>
-              <span class="text-xs text-pliega-muted font-medium">${item.organismo} • ${item.ccaa}</span>
-            </div>
-            
-            <div class="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-lg">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span>Expira: ${formatearFecha(item.fecha_fin)} (${dias} ${dias === 1 ? 'día' : 'días'})</span>
+          <div class="flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${item.color_etiqueta}">${item.tipo_etiqueta}</span>
+              <span class="text-xs text-pliega-muted">${item.organismo} • ${item.ccaa}</span>
             </div>
           </div>
-
-          <div>
-            <h3 class="text-base font-bold text-pliega-text leading-snug">${item.titulo}</h3>
-            <p class="text-xs text-stone-600 mt-1.5 leading-relaxed"><strong class="text-stone-900">Requisitos clave:</strong> ${item.requisitos}</p>
-          </div>
-
-          <div class="pt-3 border-t border-stone-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div class="text-[11px] text-pliega-muted">
-              Puesto: <strong class="text-stone-800">${item.puesto}</strong>
-            </div>
-
-            <a href="${item.url_sede}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-5 py-2.5 rounded-xl transition shadow-sm">
-              <span>Inscribirse en Sede Oficial</span>
+          <h3 class="text-base font-bold text-pliega-text leading-snug">${item.titulo}</h3>
+          <p class="text-xs text-stone-600">${item.requisitos}</p>
+          <div class="pt-2 flex justify-between items-center border-t border-stone-100">
+            <span class="text-[11px] text-pliega-muted">Sector: <strong>${item.puesto}</strong></span>
+            <a href="${item.url_sede}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-pliega-brown hover:bg-pliega-hover text-white px-4 py-2 rounded-xl transition inline-flex items-center gap-1.5">
+              <span>Ir a la Sede Oficial</span>
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
             </a>
           </div>
@@ -563,32 +321,8 @@
       });
     }
 
-    // TOAST NOTIFICACIÓN
-    function lanzarToast(titulo, texto) {
-      const toast = document.getElementById("toast-msg");
-      document.getElementById("toast-title").innerText = titulo;
-      document.getElementById("toast-body").innerText = texto;
-      toast.classList.remove("-translate-y-24", "opacity-0", "pointer-events-none");
-      toast.classList.add("translate-y-0", "opacity-100");
-      setTimeout(cerrarToast, 4000);
-    }
-
-    function cerrarToast() {
-      const toast = document.getElementById("toast-msg");
-      toast.classList.add("-translate-y-24", "opacity-0", "pointer-events-none");
-      toast.classList.remove("translate-y-0", "opacity-100");
-    }
-
-    // INICIALIZACIÓN
-    const u = localStorage.getItem("pliega_user");
-    if (u) {
-      try {
-        const parsed = JSON.parse(u);
-        document.getElementById("label-whatsapp").innerText = `✓ ${parsed.whatsapp}`;
-      } catch(e) {}
-    }
-
-    sincronizarControles();
+    renderizarChips();
+    actualizarResumen();
     renderizarFeed();
   </script>
 </body>
